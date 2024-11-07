@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login and Register</title>
+    <link rel="stylesheet" href="../static/css/login.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style></style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <form action="#">
+        <h2>Login</h2>
+        <div class="input-field">
+          <input type="text" id="username" required />
+          <label>UserName</label>
+        </div>
+        <div class="input-field">
+          <input type="password" id="password" required />
+          <label>Password</label>
+          <span class="eye-icon show-password">
+            <i class="fa-solid fa-eye"></i>
+          </span>
+          <span class="eye-icon hide-password">
+            <i class="fa-solid fa-eye-slash"></i>
+          </span>
+        </div>
+        <p class="error-message" id="errorMessage"></p>
+        <div class="forget">
+          <label for="remember">
+            <input type="checkbox" id="remember" />
+            <p>Remember me</p>
+          </label>
+          <a href="/login/forgot-password">Forgot password?</a>
+        </div>
+        <button class="login-btn" type="submit">Log In</button>
+        <div class="register">
+          <p>Don't have an account? <a href="#">Register</a></p>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      const passwordField = document.getElementById("password");
+      const usernameFiled = document.getElementById("username");
+      const showIcon = document.querySelector(".show-password");
+      const hideIcon = document.querySelector(".hide-password");
+      const loginBtn = document.querySelector(".login-btn");
+      const errorMessage = document.getElementById("errorMessage");
+
+      const validUsername = "admin";
+      const validPassword = "admin";
+
+      passwordField.oninput = function () {
+        if (passwordField.value !== "") showIcon.style.display = "inline";
+        else showIcon.style.display = "none";
+      };
+
+      hideIcon.style.display = "none";
+
+      showIcon.onclick = function () {
+        passwordField.type = "text";
+        showIcon.style.display = "none";
+        hideIcon.style.display = "inline";
+      };
+
+      hideIcon.onclick = function () {
+        passwordField.type = "password";
+        showIcon.style.display = "inline";
+        hideIcon.style.display = "none";
+      };
+
+      loginBtn.onclick = function (event) {
+        event.preventDefault();
+
+        const username = usernameFiled.value;
+        const password = passwordField.value;
+        let message = "";
+
+        if (username === "") message = "Please enter your username";
+        else {
+          if (password === "") message = "Please enter your password";
+          else {
+            if (username !== validUsername || password !== validPassword) {
+              message = "Invalid username or password";
+            } else {
+              errorMessage.textContent = "";
+              alert("Login successful!");
+              passwordField.value = "";
+              usernameFiled.value = "";
+            }
+          }
+        }
+
+        errorMessage.textContent = message;
+
+        if (username === validUsername && password === validPassword) {
+          errorMessage.textContent = "";
+          alert("Login successful!");
+        } else {
+          errorMessage.style.display = "block";
+        }
+      };
+    </script>
+  </body>
+</html>

@@ -1,11 +1,18 @@
 from flask import Blueprint, render_template
-from app.controllers.home_controller import create_user
 
 home_bp = Blueprint("home", __name__)
 
 
 @home_bp.route("/")
 def home():
-    # Thêm một người dùng mẫu vào database
-    create_user("JohnDoe", "john@example.com")
-    return "User created!"
+    return render_template("home.html")
+
+
+@home_bp.route("/account/profile")
+def profile():
+    return render_template("profile.html")
+
+
+@home_bp.route("/account/transfer-money")
+def transfer_money():
+    return render_template("transfer_money.html")
