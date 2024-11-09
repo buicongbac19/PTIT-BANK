@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Boxicons -->
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<!-- My CSS -->
+	<link rel="stylesheet" href="../../../static/css/style.css">
+	<link rel="shortcut icon" href="../../../static/images/9703596.png" type="image/x-icon">
+	<link rel="icon" href="../../../static/images/9703596.png" type="image/x-icon">
+
+	<title>Admin</title>
+</head>
+<body>
+
+
+	<!-- SIDEBAR -->
+	<section id="sidebar">
+		<a href="../home.html" class="brand">
+			<i class='bx bxs-smile'></i>
+			<span class="text">Admin</span>
+		</a>
+		<ul class="side-menu top">
+			<li class="side-menu-li">
+				<a href="../home.html">
+					<i class='bx bxs-dashboard' ></i>
+					<span class="text">Dashboard</span>
+				</a>
+			</li>
+			<li class="side-menu-li">
+				<a href="../user/user.html">
+					<i class='bx bxs-user'></i>
+					<span class="text">Người dùng</span>
+					<!-- <i class='bx bx-chevron-right'></i> -->
+				</a>
+				<!-- <div class="sub-menu-container">
+					<ul class="sub-menu">
+						<li>
+							<a href="#">Quản lý khách hàng</a>
+						</li>
+						<li>
+							<a href="#">Quản lý nhân viên</a>
+						</li>
+						<li>
+							<a href="#">Thêm mới</a>
+						</li>
+					</ul>
+				</div> -->
+			</li>
+			<li class="side-menu-li">
+				<a href="../account/account.html">
+					<i class='bx bxs-user-account'></i>
+					<span class="text">Tài khoản</span>
+					<!-- <i class='bx bx-chevron-right'></i> -->
+				</a>
+				<!-- <div class="sub-menu-container">
+					<ul class="sub-menu">
+						<li>
+							<a href="#">Quản lý tài khoản ngân hàng</a>
+						</li>
+						<li>
+							<a href="#">Quản lý loại tài khoản</a>
+						</li>
+					</ul>
+				</div> -->
+			</li>
+			<li class="active side-menu-li">
+				<a href="">
+					<i class='bx bx-bar-chart-alt'></i>
+					<span class="text">Giao dịch</span>
+				</a>
+			</li>
+			<li class="side-menu-li">
+				<a href="#">
+					<i class='bx bxs-group' ></i>
+					<span class="text">Về chúng tôi</span>
+				</a>
+			</li>
+		</ul>
+		<ul class="side-menu">
+			<li>
+				<a href="#">
+					<i class='bx bxs-cog' ></i>
+					<span class="text">Cài đặt</span>
+				</a>
+			</li>
+			<li>
+				<a href="#" class="logout">
+					<i class='bx bxs-log-out-circle' ></i>
+					<span class="text">Đăng xuất</span>
+				</a>
+			</li>
+		</ul>
+	</section>
+	<!-- SIDEBAR -->
+
+
+
+	<!-- CONTENT -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class='bx bx-menu' ></i>
+			<a href="#" class="nav-link">Danh mục</a>
+			<form action="#">
+				<div class="form-input">
+					<input type="search" placeholder="Tìm kiếm...">
+					<button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
+				</div>
+			</form>
+			<input type="checkbox" id="switch-mode" hidden>
+			<label for="switch-mode" class="switch-mode"></label>
+			<a href="#" class="notification">
+				<i class='bx bxs-bell' ></i>
+				<span class="num">8</span>
+			</a>
+			<a href="#" class="profile">
+				<img src="../../../static/images/images.jpg">
+			</a>
+		</nav>
+		<!-- NAVBAR -->
+
+		<!-- MAIN -->
+		<main>
+			<div class="head-title">
+				<div class="left">
+					<h1>Giao dịch</h1>
+					<ul class="breadcrumb">
+						<li>
+							<a href="#">Giao dịch</a>
+						</li>
+						<li><i class='bx bx-chevron-right' ></i></li>
+						<li>
+							<a class="active" href="#">Quản lý giao dịch</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="table-data">
+				<div class="order">
+					<div class="head">
+						<h3>Danh sách giao dịch</h3>
+						<i class='bx bx-search' ></i>
+						<i class='bx bx-filter' ></i>
+					</div>
+					<table>
+						<thead>
+							<tr>
+								<th>Mã giao dịch</th>
+								<th>Tài khoản gửi</th>
+                                <th>Tài khoản nhận</th>
+								<th>Trạng thái</th>
+								<th>Số tiền gửi</th>
+                                <th>Ngày giao dịch</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									<p>#1234</p>
+								</td>
+								<td>15001453432</td>
+                                <td>15015519999</td>
+								<td><span class="status success">Thành công</span></td>
+								<td>5000000</td>
+                                <td>
+                                    <span>12/11/2024</span>
+                                </td>
+							</tr>
+							<tr>
+								<td>
+									<p>#2113</p>
+								</td>
+								<td>15009999999</td>
+                                <td>1500345345</td>
+								<td><span class="status error">Thất bại</span></td>
+								<td>5000000</td>
+                                <td>
+                                    <span>12/12/2024</span>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<p>#1311</p>
+								</td>
+								<td>15001453432</td>
+                                <td>15015519999</td>
+								<td><span class="status success">Thành công</span></td>
+								<td>5000000</td>
+                                <td>
+                                    <span>12/11/2024</span>
+                                </td>
+							</tr>
+							<tr>
+								<td>
+									<p>#1312</p>
+								</td>
+								<td>15001453432</td>
+                                <td>15015519999</td>
+								<td><span class="status success">Thành công</span></td>
+								<td>5000000</td>
+                                <td>
+                                    <span>12/11/2024</span>
+                                </td>
+							</tr>
+                                <tr>
+                                    <td>
+                                        <p>#1313</p>
+                                    </td>
+                                    <td>15001453432</td>
+                                    <td>15015519999</td>
+                                    <td><span class="status success">Thành công</span></td>
+                                    <td>5000000</td>
+                                    <td>
+                                        <span>12/11/2024</span>
+                                    </td>
+                                </tr>
+						</tbody>
+					</table>
+				</div>
+				<!-- <div class="todo">
+					<div class="head">
+						<h3>Todos</h3>
+						<i class='bx bx-plus' ></i>
+						<i class='bx bx-filter' ></i>
+					</div>
+					<ul class="todo-list">
+						<li class="completed">
+							<p>Todo List</p>
+							<i class='bx bx-dots-vertical-rounded' ></i>
+						</li>
+						<li class="completed">
+							<p>Todo List</p>
+							<i class='bx bx-dots-vertical-rounded' ></i>
+						</li>
+						<li class="not-completed">
+							<p>Todo List</p>
+							<i class='bx bx-dots-vertical-rounded' ></i>
+						</li>
+						<li class="completed">
+							<p>Todo List</p>
+							<i class='bx bx-dots-vertical-rounded' ></i>
+						</li>
+						<li class="not-completed">
+							<p>Todo List</p>
+							<i class='bx bx-dots-vertical-rounded' ></i>
+						</li>
+					</ul>
+				</div> -->
+			</div>
+		</main> 
+		<!-- MAIN -->
+	</section>
+	<!-- CONTENT -->
+	
+
+	<script src="../../../static/js/script.js"></script>
+</body>
+</html>
