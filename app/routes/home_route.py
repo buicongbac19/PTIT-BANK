@@ -16,3 +16,13 @@ def profile():
 @home_bp.route("/account/transfer-money")
 def transfer_money():
     return render_template("transfer_money.html")
+
+
+@home_bp.route("/account/credit-score")
+def credit_score():
+    return render_template("credit_score.html")
+
+
+@home_bp.route("/account/settings")
+def settings():
+    return render_template("settings.html")

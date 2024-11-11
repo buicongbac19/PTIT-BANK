@@ -169,6 +169,9 @@ body {
   justify-content: center;
 }
 
+/* SIDEBAR */
+
+/* CONTENT */
 #content {
   position: relative;
   width: calc(100% - 280px);
@@ -181,6 +184,7 @@ body {
   left: 60px;
 }
 
+/* NAVBAR */
 #content nav {
   height: 56px;
   background: var(--light);
@@ -193,15 +197,8 @@ body {
   top: 0;
   left: 0;
   z-index: 1000;
-}
-
-#content nav i {
-  display: flex;
-  align-items: center;
-}
-
-#content nav img {
-  display: flex;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
 }
 
 #content nav::before {
@@ -297,10 +294,6 @@ body {
   pointer-events: unset;
 }
 
-.breadcrumb:before {
-  display: none !important;
-}
-
 #content main .head-title .btn-download {
   height: 36px;
   padding: 0 16px;
@@ -321,22 +314,9 @@ body {
   margin-top: 36px;
 }
 
-.main-account-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--dark);
-}
-
-.main-account .left-content {
-  background-image: url("../images/MB.png");
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: contain;
-  margin-right: 10px;
-}
-
 #content main .box-info li,
-.transaction-query {
+.recent-transactions-list,
+.recent-credit-scores {
   box-shadow: 0 0 1rem #0003;
   border-radius: 20px;
   padding: 24px;
@@ -414,38 +394,6 @@ body {
   margin-left: 5px;
 }
 
-.total-value .left-content {
-  background-image: url("../images/total.svg");
-}
-
-.total-value .up-content {
-  display: flex;
-  align-items: center;
-}
-
-.eye {
-  margin-left: 5px;
-  font-size: 15px;
-  display: none;
-  cursor: pointer;
-}
-
-.eye.active {
-  display: block;
-}
-
-.card .left-content {
-  background-image: url("../images/card.svg");
-}
-
-.saving .left-content {
-  background-image: url("../images/saving.svg");
-}
-
-.loan .left-content {
-  background-image: url("../images/loan.svg");
-}
-
 #content main .box-info li .my-account .bx {
   width: 80px;
   height: 80px;
@@ -481,201 +429,46 @@ body {
   color: var(--dark);
 }
 
-.transaction-query {
-  margin-top: 50px;
-}
-
-.transaction-query .title {
+.rule {
   font-size: 24px;
-  font-weight: 600;
-  color: var(--dark);
-}
-
-.search-title {
-  font-style: normal;
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 18px;
-  color: #000;
-  margin: 10px 0;
-}
-
-.account-number-wrapper,
-.time-wrapper,
-.time-detail {
   display: flex;
-  margin-bottom: 20px;
-  align-items: center;
-}
-
-.time-detail {
-  margin-bottom: 0;
-}
-
-.arrow-icon {
-  background-image: url("../images/arrow-icon.svg");
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: contain;
-  width: 24px;
-  height: 25px;
-  margin: 0 10px;
-}
-
-.account-number-text,
-.time-text {
-  font-size: 14px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.43;
-  letter-spacing: 0.5px;
-  color: #646464;
-  width: 230px;
-}
-
-.account-number-detail,
-.time-start,
-.time-end {
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
-  color: #495057;
-  border-radius: 6px;
-  border: solid 1px #c4c4c4;
-  background-color: #f7f7f7;
-  padding: 0.375rem 0.75rem;
-}
-
-.time-start,
-.time-end {
-  width: 112px;
-  font-size: 14px;
-  text-align: center;
-  cursor: pointer;
-}
-
-.time-start input,
-.time-end input {
-  height: 100% !important;
-  font-size: 14px !important;
-  border: none !important;
-  margin: 0 !important;
-  text-align: center !important;
-  color: #495057 !important;
-  font-weight: 500 !important;
-}
-
-.query {
-  background-color: #141ed2;
-  border: 1px solid #141ed2;
-  padding: 6px;
   align-items: center;
   justify-content: center;
-  display: flex;
-  color: #fff;
-  border-radius: 0.25rem;
-  font-size: 14px;
-  margin-left: 30px;
-  cursor: pointer;
+  margin-top: 20px;
 }
 
-.query:hover {
+.pcoin {
+  margin-top: 4px;
+  margin-right: 10px;
+  color: red;
+}
+
+.my-coin .text {
+  font-size: 24px;
+  font-weight: 600;
+  margin-top: 30px;
+}
+
+.total-coin {
+  color: red;
+}
+
+.convert {
+  margin-top: 20px;
+  background-color: #141ed2;
+  border: solid 1px #141ed2;
+  cursor: pointer;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px;
+  width: 300px;
+}
+
+.convert:hover {
   background-color: #fff;
   color: #141ed2;
 }
-
-.logo-bank {
-  background-image: url("../images/MB.png");
-  width: 24px;
-  height: 24px;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  margin-right: 10px;
-}
-
-.fullname {
-  font-size: 14px;
-  font-weight: 700;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.43;
-  letter-spacing: 0.5px;
-  color: #000;
-  text-transform: uppercase;
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden !important;
-  text-overflow: ellipsis;
-}
-
-.account-number {
-  font-size: 14px;
-  font-weight: 400;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.43;
-  letter-spacing: 0.5px;
-  color: #646464;
-}
-
-.query-result {
-  margin-top: 20px;
-  height: auto;
-}
-
-.query-result-table {
-  margin-top: 20px;
-  border-collapse: collapse;
-  width: 100%;
-  margin-bottom: 20px;
-}
-
-.query-result-table td,
-.query-result-table th {
-  border: 1px solid #ddd;
-  padding: 8px;
-  font-weight: 500;
-}
-
-.query-result-table tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-.query-result-table tr:hover {
-  background-color: #ddd;
-}
-
-.query-result-table th {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  text-align: left;
-  background-color: white;
-  color: #000;
-}
-
-.pagination {
-  display: flex;
-  float: right;
-  margin-bottom: 10px;
-}
-
-.pagination-item {
-  color: gray;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-  margin-right: 10px;
-}
-
-.pagination-item.active {
-  color: #000;
-  pointer-events: none;
-  border: 1px solid #cccccc;
-  text-align: center;
-}
-
 /* MAIN */
 /* CONTENT */
 

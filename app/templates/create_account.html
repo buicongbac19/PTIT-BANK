@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login and Register</title>
-    <link rel="stylesheet" href="../static/css/login.css" />
+    <title>Register</title>
+    <link rel="stylesheet" href="../static/css/register.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
@@ -17,32 +17,19 @@
   <body>
     <div class="wrapper">
       <form action="#">
-        <h2>Login</h2>
+        <h2>Create an account</h2>
         <div class="input-field">
           <input type="text" id="username" required />
-          <label>UserName</label>
+          <label>Username</label>
         </div>
         <div class="input-field">
-          <input type="password" id="password" required />
+          <input type="text" id="username" required />
           <label>Password</label>
-          <span class="eye-icon show-password">
-            <i class="fa-solid fa-eye"></i>
-          </span>
-          <span class="eye-icon hide-password">
-            <i class="fa-solid fa-eye-slash"></i>
-          </span>
         </div>
         <p class="error-message" id="errorMessage"></p>
-        <div class="forget">
-          <label for="remember">
-            <input type="checkbox" id="remember" />
-            <p>Remember me</p>
-          </label>
-          <a href="/login/forgot-password">Forgot password?</a>
-        </div>
-        <button class="login-btn" type="submit">Log In</button>
+        <button class="login-btn" type="submit">Register</button>
         <div class="register">
-          <p>Don't have an account? <a href="/register">Register</a></p>
+          <p>Have an account? <a href="/login">Login</a></p>
         </div>
       </form>
     </div>
