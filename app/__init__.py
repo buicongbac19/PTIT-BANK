@@ -1,24 +1,15 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-# Khởi tạo SQLAlchemy
-db = SQLAlchemy()
+db = SQLAlchemy()  # Khởi tạo đối tượng SQLAlchemy
+app = Flask(__name__, template_folder='templates')
+
+from .routes import auth_routes, forgotPass_routes, login_routes, choose_account_routes, home, dashboard, pinCode_routes, transaction_routes
 
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object("config.Config")
+app.config['SECRET_KEY'] = 'mysecret'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ptit_database.db'  # Thay bằng kết nối cơ sở dữ liệu của bạn
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Tùy chọn không cần thiết nhưng có thể giúp giảm overhead
 
-    # Khởi động database
-    db.init_app(app)
+db.init_app(app)
 
-    # Import và đăng ký các blueprint
-    from .routes.home_route import home_bp
-
-    app.register_blueprint(home_bp)
-
-    # Tạo bảng trong database (nếu chưa có)
-    with app.app_context():
-        db.create_all()
-
-    return app
