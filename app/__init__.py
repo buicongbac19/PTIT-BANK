@@ -15,7 +15,10 @@ def create_app():
     # Import và đăng ký các blueprint
     from .routes.home_route import home_bp
 
+    from .routes.admin_route import admin_bp
+
     app.register_blueprint(home_bp)
+    app.register_blueprint(admin_bp)
 
     # Tạo bảng trong database (nếu chưa có)
     with app.app_context():

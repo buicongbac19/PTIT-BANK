@@ -77,3 +77,45 @@ switchMode.addEventListener('change', function () {
 		document.body.classList.remove('dark');
 	}
 })
+
+// popup
+
+function confirmLockAccount(event) {
+    // Nội dung của hàm confirmLockAccount
+    event.preventDefault(); // Ngăn chặn hành động mặc định của liên kết
+    Swal.fire({
+        title: 'Bạn có chắc chắn?',
+        text: "Bạn có chắc chắn muốn khóa tài khoản này không?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Có, khóa ngay!',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Thực hiện hành động khóa tài khoản
+            window.location.href = "/path/to/lock/account"; // Thay đổi đường dẫn này thành đường dẫn thực tế
+        }
+    });
+}
+
+function confirmLockUser(event) {
+    // Nội dung của hàm confirmLockUser
+    event.preventDefault(); // Ngăn chặn hành động mặc định của liên kết
+    Swal.fire({
+        title: 'Bạn có chắc chắn?',
+        text: "Bạn có chắc chắn muốn khóa người dùng này không?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Có, khóa ngay!',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Thực hiện hành động khóa người dùng
+            window.location.href = "/path/to/lock/user"; // Thay đổi đường dẫn này thành đường dẫn thực tế
+        }
+    });
+}

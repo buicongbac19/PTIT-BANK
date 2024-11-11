@@ -10,6 +10,8 @@
 	<link rel="stylesheet" href="../../../static/css/style.css">
 	<link rel="shortcut icon" href="../../../static/images/9703596.png" type="image/x-icon">
 	<link rel="icon" href="../../../static/images/9703596.png" type="image/x-icon">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
 	<title>Admin</title>
 </head>
@@ -18,74 +20,39 @@
 
 	<!-- SIDEBAR -->
 	<section id="sidebar">
-		<a href="../home.html" class="brand">
+		<a href="/admin" class="brand">
 			<i class='bx bxs-smile'></i>
 			<span class="text">Admin</span>
 		</a>
 		<ul class="side-menu top">
 			<li class="side-menu-li">
-				<a href="../home.html">
+				<a href="/admin">
 					<i class='bx bxs-dashboard' ></i>
 					<span class="text">Dashboard</span>
 				</a>
 			</li>
 			<li class="active side-menu-li">
-				<a href="../user/user.html">
+				<a href="/admin/user">
 					<i class='bx bxs-user'></i>
-					<span class="text">Người dùng</span>
+					<span class="text">Quản lý người dùng</span>
 					<!-- <i class='bx bx-chevron-right'></i> -->
 				</a>
-				<!-- <div class="sub-menu-container">
-					<ul class="sub-menu">
-						<li>
-							<a href="#">Quản lý khách hàng</a>
-						</li>
-						<li>
-							<a href="#">Quản lý nhân viên</a>
-						</li>
-						<li>
-							<a href="#">Thêm mới</a>
-						</li>
-					</ul>
-				</div> -->
 			</li>
 			<li class="side-menu-li">
-				<a href="../account/account.html">
+				<a href="/admin/account">
 					<i class='bx bxs-user-account'></i>
-					<span class="text">Tài khoản</span>
+					<span class="text">Quản lý tài khoản</span>
 					<!-- <i class='bx bx-chevron-right'></i> -->
 				</a>
-				<!-- <div class="sub-menu-container">
-					<ul class="sub-menu">
-						<li>
-							<a href="#">Quản lý tài khoản ngân hàng</a>
-						</li>
-						<li>
-							<a href="#">Quản lý loại tài khoản</a>
-						</li>
-					</ul>
-				</div> -->
 			</li>
 			<li class="side-menu-li">
-				<a href="../transaction/transaction.html">
+				<a href="/admin/transaction">
 					<i class='bx bx-bar-chart-alt'></i>
-					<span class="text">Giao dịch</span>
-				</a>
-			</li>
-			<li class="side-menu-li">
-				<a href="#">
-					<i class='bx bxs-group' ></i>
-					<span class="text">Về chúng tôi</span>
+					<span class="text">Quản lý giao dịch</span>
 				</a>
 			</li>
 		</ul>
 		<ul class="side-menu">
-			<li>
-				<a href="#">
-					<i class='bx bxs-cog' ></i>
-					<span class="text">Cài đặt</span>
-				</a>
-			</li>
 			<li>
 				<a href="#" class="logout">
 					<i class='bx bxs-log-out-circle' ></i>
@@ -129,7 +96,7 @@
 					<h1>Người dùng</h1>
 					<ul class="breadcrumb">
 						<li>
-							<a href="#">Người dùng</a>
+							<a href="#">Quản lý người dùng</a>
 						</li>
 						<li><i class='bx bx-chevron-right' ></i></li>
 						<li>
@@ -137,7 +104,7 @@
 						</li>
 					</ul>
 				</div>
-				<a href="create.html" class="btn-download">
+				<a href="/admin/user/create" class="btn-download">
 					<span class="text">Thêm mới</span>
 				</a>
 			</div>
@@ -167,8 +134,8 @@
                                 <td>Test@gmail.com</td>
 								<td><span class="status success">Đang hoạt động</span></td>
                                 <td>
-                                    <a href="edit.html"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
-                                    <a href="#"><span class="text-danger"><i class='bx bxs-lock' ></i>Khóa</span></a>
+                                    <a href="/admin/user/edit"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
+                                    <a href="#" onclick="confirmLockUser(event)"><span class="text-danger"><i class='bx bxs-lock' ></i>Khóa</span></a>
                                 </td>
 							</tr>
 							<tr>
@@ -179,8 +146,8 @@
                                 <td>Test1@gmail.com</td>
 								<td><span class="status error">Đang bị khóa</span></td>
                                 <td>
-                                    <a href="edit.html"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
-                                    <a href="#"><span class="text-blue"><i class='bx bxs-lock-open' ></i>Bỏ khóa</span></a></td>
+                                    <a href="/admin/user/edit"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
+                                    <a href="#" ><span class="text-blue"><i class='bx bxs-lock-open' ></i>Bỏ khóa</span></a></td>
 							</tr>
 							<tr>
 								<td>
@@ -190,8 +157,8 @@
                                 <td>Test2@gmail.com</td>
 								<td><span class="status success">Đang hoạt động</span></td>
                                 <td>
-                                    <a href="edit.html"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
-                                    <a href="#"><span class="text-danger"><i class='bx bxs-lock' ></i>Khóa</span></a>
+                                    <a href="/admin/user/edit"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
+                                    <a href="#" onclick="confirmLockUser(event)"><span class="text-danger"><i class='bx bxs-lock' ></i>Khóa</span></a>
 							</tr>
 							<tr>
 								<td>
@@ -201,8 +168,8 @@
                                 <td>Test3@gmail.com</td>
 								<td><span class="status success">Đang hoạt động</span></td>
                                 <td>
-                                    <a href="edit.html"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
-                                    <a href="#"><span class="text-danger"><i class='bx bxs-lock' ></i>Khóa</span></a>
+                                    <a href="/admin/user/edit"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
+                                    <a href="#" onclick="confirmLockUser(event)"><span class="text-danger"><i class='bx bxs-lock' ></i>Khóa</span></a>
 							</tr>
 							<tr>
 								<td>
@@ -212,41 +179,12 @@
                                 <td>Test4@gmail.com</td>
 								<td><span class="status error">Đang bị khóa</span></td>
                                 <td>
-                                    <a href="edit.html"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
-                                    <a href="#"><span class="text-blue"><i class='bx bxs-lock-open' ></i>Bỏ khóa</span></a></td>
+                                    <a href="/admin/user/edit"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
+                                    <a href="#" ><span class="text-blue"><i class='bx bxs-lock-open' ></i>Bỏ khóa</span></a></td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
-				<!-- <div class="todo">
-					<div class="head">
-						<h3>Todos</h3>
-						<i class='bx bx-plus' ></i>
-						<i class='bx bx-filter' ></i>
-					</div>
-					<ul class="todo-list">
-						<li class="completed">
-							<p>Todo List</p>
-							<i class='bx bx-dots-vertical-rounded' ></i>
-						</li>
-						<li class="completed">
-							<p>Todo List</p>
-							<i class='bx bx-dots-vertical-rounded' ></i>
-						</li>
-						<li class="not-completed">
-							<p>Todo List</p>
-							<i class='bx bx-dots-vertical-rounded' ></i>
-						</li>
-						<li class="completed">
-							<p>Todo List</p>
-							<i class='bx bx-dots-vertical-rounded' ></i>
-						</li>
-						<li class="not-completed">
-							<p>Todo List</p>
-							<i class='bx bx-dots-vertical-rounded' ></i>
-						</li>
-					</ul>
-				</div> -->
 			</div>
 		</main> 
 		<!-- MAIN -->
