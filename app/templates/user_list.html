@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Khách hàng</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .action-btn { margin-right: 5px; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
+        .add-btn { background-color: #4CAF50; color: white; margin: 10px 0; }
+        .edit-btn { background-color: #2196F3; color: white; }
+        .lock-btn { background-color: #f44336; color: white; }
+        .unlock-btn { background-color: #4CAF50; color: white; }
+        .form-popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px; border: 1px solid #ddd; background-color: #fff; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }
+        .form-popup input, .form-popup select { width: 100%; padding: 8px; margin: 5px 0 15px; border: 1px solid #ddd; border-radius: 4px; }
+        .close-btn { background-color: #555; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Quản lý Khách hàng</h1>
+
+    <!-- Khung tìm kiếm -->
+    <form action="/customers/search" method="get" style="margin-bottom: 20px;">
+        <label for="searchCustomerID">Tìm kiếm theo ID khách hàng hoặc tên:</label>
+        <input type="text" id="searchCustomerID" name="CustomerID" placeholder="Nhập ID khách hàng">
+        <input type="text" id="searchCustomerName" name="Name" placeholder="Nhập tên">
+        <button type="submit">Tìm kiếm</button>
+    </form>
+
+    <button class="action-btn add-btn" onclick="showAddForm()">Thêm Khách hàng</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID Khách hàng</th>
+                <th>Họ</th>
+                <th>Tên</th>
+                <th>Ngày sinh</th>
+                <th>Vai trò</th>
+                <th>Email</th>
+                <th>Số điện thoại</th>
+                <th>Địa chỉ</th>
+                <th>Thành phố</th>
+                <th>Quốc gia</th>
+                <th>Ghi chú</th>
+                <th>Trạng thái tài khoản</th>
+                <th>Tiện ích</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer, account_status in customers %}
+            <tr>
+                <td>{{ customer.CustomerID }}</td>
+                <td>{{ customer.FirstName }}</td>
+                <td>{{ customer.LastName }}</td>
+                <td>{{ customer.DateOfBirth }}</td>
+                <td>{{ customer.Role }}</td>
+                <td>{{ customer.Email }}</td>
+                <td>{{ customer.PhoneNumber }}</td>
+                <td>{{ customer.Address }}</td>
+                <td>{{ customer.City }}</td>
+                <td>{{ customer.Country }}</td>
+                <td>{{ customer.Notes }}</td>
+                <td>{{ account_status }}</td>
+                <td>
+                    <button class="action-btn edit-btn" onclick="showEditForm('{{ customer.CustomerID }}', '{{ customer.FirstName }}', '{{ customer.LastName }}', '{{ customer.DateOfBirth }}', '{{ customer.Role }}', '{{ customer.Email }}', '{{ customer.PhoneNumber }}', '{{ customer.Address }}', '{{ customer.City }}', '{{ customer.Country }}', '{{ customer.Notes }}')">Sửa</button>
+                    {% if account_status == 'Active' %}
+                        <button class="action-btn lock-btn" onclick="toggleAccountStatus('{{ customer.CustomerID }}', 'Locked')">Khóa</button>
+                    {% else %}
+                        <button class="action-btn unlock-btn" onclick="toggleAccountStatus('{{ customer.CustomerID }}', 'Active')">Mở khóa</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Form Thêm/Sửa Khách hàng -->
+    <div class="form-popup" id="customerForm">
+        <h2 id="formTitle">Thêm Khách hàng Mới</h2>
+        <form action="/customers/add" method="post" id="customerFormAction">
+            <input type="hidden" id="CustomerID" name="CustomerID">
+            <label for="FirstName">Họ</label>
+            <input type="text" id="FirstName" name="FirstName" required>
+            <label for="LastName">Tên</label>
+            <input type="text" id="LastName" name="LastName" required>
+            <label for="DateOfBirth">Ngày sinh</label>
+            <input type="date" id="DateOfBirth" name="DateOfBirth">
+            <label for="Role">Vai trò</label>
+            <input type="text" id="Role" name="Role" required>
+            <label for="Email">Email</label>
+            <input type="email" id="Email" name="Email" required>
+            <label for="PhoneNumber">Số điện thoại</label>
+            <input type="text" id="PhoneNumber" name="PhoneNumber" required>
+            <label for="Address">Địa chỉ</label>
+            <input type="text" id="Address" name="Address">
+            <label for="City">Thành phố</label>
+            <input type="text" id="City" name="City">
+            <label for="Country">Quốc gia</label>
+            <input type="text" id="Country" name="Country">
+            <label for="Notes">Ghi chú</label>
+            <input type="text" id="Notes" name="Notes">
+            <button type="submit" class="action-btn add-btn">Lưu</button>
+            <button type="button" class="close-btn" onclick="closeForm()">Đóng</button>
+        </form>
+    </div>
+
+    <script>
+        function showAddForm() {
+            document.getElementById('formTitle').textContent = 'Thêm Khách hàng Mới';
+            document.getElementById('customerForm').style.display = 'block';
+            document.getElementById('customerFormAction').action = "/customers/add";
+            document.getElementById('CustomerID').value = '';
+            document.getElementById('FirstName').value = '';
+            document.getElementById('LastName').value = '';
+            document.getElementById('DateOfBirth').value = '';
+            document.getElementById('Role').value = '';
+            document.getElementById('Email').value = '';
+            document.getElementById('PhoneNumber').value = '';
+            document.getElementById('Address').value = '';
+            document.getElementById('City').value = '';
+            document.getElementById('Country').value = '';
+            document.getElementById('Notes').value = '';
+        }
+
+        function showEditForm(id, firstName, lastName, dob, role, email, phoneNumber, address, city, country, notes) {
+            document.getElementById('formTitle').textContent = 'Sửa Thông tin Khách hàng';
+            document.getElementById('CustomerID').value = id;
+            document.getElementById('FirstName').value = firstName;
+            document.getElementById('LastName').value = lastName;
+            document.getElementById('DateOfBirth').value = dob;
+            document.getElementById('Role').value = role;
+            document.getElementById('Email').value = email;
+            document.getElementById('PhoneNumber').value = phoneNumber;
+            document.getElementById('Address').value = address;
+            document.getElementById('City').value = city;
+            document.getElementById('Country').value = country;
+            document.getElementById('Notes').value = notes;
+            document.getElementById('customerForm').style.display = 'block';
+            document.getElementById('customerFormAction').action = `/customers/edit/${id}`;
+        }
+
+         function toggleAccountStatus(customerID, status) {
+        // Đặt action cho form để gửi đến URL có chứa customerID
+        const form = document.getElementById('statusForm');
+        form.action = `/customers/status/${customerID}`;
+
+        // Đặt giá trị trạng thái mới vào input ẩn và submit form
+        document.getElementById('statusInput').value = status;
+        form.submit();
+        }
+        function closeForm() {
+            document.getElementById('customerForm').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chọn Số Tài Khoản</title>
+</head>
+<body>
+    <h2>Chọn Số Tài Khoản</h2>
+    <form method="POST">
+        <label for="account_number">Chọn số tài khoản mong muốn:</label>
+        <select name="account_number" id="account_number" required>
+            {% for number in account_numbers %}
+                <option value="{{ number }}">{{ number }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Xác nhận</button>
+    </form>
+</body>
+</html>

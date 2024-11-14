@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Đổi Mã PIN</title>
+</head>
+<body>
+    <h1>Đổi Mã PIN</h1>
+    <form action="updatepin" method="POST">
+        <label for="current_pin">Mã PIN hiện tại:</label>
+        <input type="password" id="current_pin" name="old_pin" required minlength="4" maxlength="6">
+
+        <label for="new_pin">Mã PIN mới:</label>
+        <input type="password" id="new_pin" name="new_pin" required minlength="4" maxlength="6">
+
+        <button type="submit">Đổi Mã PIN</button>
+    </form>
+</body>
+</html>

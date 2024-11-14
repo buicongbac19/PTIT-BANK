@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Tài khoản Mới</title>
+</head>
+<body>
+    <h1>Thêm Tài khoản Mới</h1>
+    <form action="{{ url_for('add_account') }}" method="post">
+        <!-- Các trường để thêm tài khoản mới -->
+        Account ID: <input type="text" name="AccountID"><br>
+        Customer ID: <input type="text" name="CustomerID"><br>
+        Username: <input type="text" name="Username"><br>
+        Password: <input type="password" name="Password"><br>
+        Email: <input type="email" name="Email"><br>
+        Account Type: <input type="text" name="AccountType"><br>
+        Balance: <input type="number" name="Balance" step="0.01"><br>
+        Status: <input type="text" name="Status"><br>
+        PinCode: <input type="text" name="PinCode"><br>
+        Credit Score: <input type="number" name="creditScored"><br>
+        <button type="submit">Thêm Tài khoản</button>
+    </form>
+</body>
+</html>

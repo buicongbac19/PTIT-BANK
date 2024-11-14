@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()  # Khởi tạo đối tượng SQLAlchemy
 app = Flask(__name__, template_folder='templates')
 
-from .routes import auth_routes, forgotPass_routes, login_routes, choose_account_routes, home, dashboard, pinCode_routes, transaction_routes
+from .routes import auth_routes, forgotPass_routes, login_routes, choose_account_routes, home, dashboard, pinCode_routes, transaction_routes, withdraw_routes, CRUDaccount_routes, CRUDuser_routes, transaction_history_routes
 
 
 app.config['SECRET_KEY'] = 'mysecret'

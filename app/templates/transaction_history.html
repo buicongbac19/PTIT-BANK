@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Sử Giao Dịch</title>
+</head>
+<body>
+    <h1>Lịch Sử Giao Dịch</h1>
+
+    <form method="get" action="/transactions/history">
+        <label for="start_date">Ngày Bắt Đầu:</label>
+        <input type="date" id="start_date" name="start_date" value="{{ request.args.get('start_date') }}">
+
+        <label for="end_date">Ngày Kết Thúc:</label>
+        <input type="date" id="end_date" name="end_date" value="{{ request.args.get('end_date') }}">
+
+        <button type="submit">Lọc Giao Dịch</button>
+    </form>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Mã Giao Dịch</th>
+                <th>Số Tài Khoản Người Gửi</th>
+                <th>Số Tài Khoản Người Nhận</th>
+                <th>Số Tiền</th>
+                <th>Nội Dung</th>
+                <th>Ngày Giao Dịch</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.TransactionID }}</td>
+                    <td>{{ transaction.senderAccountNumber }}</td>
+                    <td>{{ transaction.recipientAccountNumber }}</td>
+                    <td>{{ transaction.Amount | format_amount }} VND</td>
+                    <td>{{ transaction.Description }}</td>
+                    <td>{{ transaction.TransactionDate.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

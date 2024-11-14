@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Tài khoản Người dùng</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .action-btn { margin-right: 5px; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
+        .add-btn { background-color: #4CAF50; color: white; margin: 10px 0; }
+        .edit-btn { background-color: #2196F3; color: white; }
+        .lock-btn { background-color: #f44336; color: white; }
+        .form-popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px; border: 1px solid #ddd; background-color: #fff; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }
+        .form-popup input, .form-popup select { width: 100%; padding: 8px; margin: 5px 0 15px; border: 1px solid #ddd; border-radius: 4px; }
+        .close-btn { background-color: #555; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Quản lý Tài khoản Người dùng</h1>
+
+    <!-- Khung tìm kiếm -->
+    <form action="/accounts/search" method="get" style="margin-bottom: 20px;">
+        <label for="searchAccountID">Tìm kiếm theo ID tài khoản hoặc số tài khoản:</label>
+        <input type="text" id="searchAccountID" name="AccountID" placeholder="Nhập ID tài khoản">
+        <input type="text" id="searchAccountNumber" name="accountNumber" placeholder="Nhập số tài khoản">
+        <button type="submit">Tìm kiếm</button>
+    </form>
+
+    <button class="action-btn add-btn" onclick="showAddForm()">Thêm Tài khoản</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID tài khoản</th>
+                <th>Tên đăng nhập</th>
+                <th>Email</th>
+                <th>Số tài khoản</th>
+                <th>Loại tài khoản</th>
+                <th>Số dư</th>
+                <th>Điểm tín dụng</th>
+                <th>Trạng thái</th>
+                <th>Ngày mở TK</th>
+                <th>Tiện ích</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for account in accounts %}
+            <tr>
+                <td>{{ account.AccountID }}</td>
+                <td>{{ account.Username }}</td>
+                <td>{{ account.Email }}</td>
+                <td>{{ account.accountNumber }}</td>
+                <td>{{ account.AccountType }}</td>
+                <td>{{ account.Balance }}</td>
+                <td>{{ account.creditScored }}</td>
+                <td>{{ account.Status }}</td>
+                <td>{{ account.DateOpened }}</td>
+                <td>
+                    <button class="action-btn edit-btn" onclick="showEditForm('{{ account.AccountID }}', '{{ account.Username }}', '{{ account.Email }}', '{{ account.AccountType }}', '{{ account.Balance }}', '{{ account.Status }}')">Sửa</button>
+                    <button class="action-btn lock-btn" onclick="lockAccount('{{ account.AccountID }}')">Khóa</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Form Thêm/Sửa Tài khoản -->
+    <div class="form-popup" id="accountForm">
+        <h2 id="formTitle">Thêm Tài khoản Mới</h2>
+        <form action="/accounts/add" method="post" id="accountFormAction">
+            <input type="hidden" id="AccountID" name="AccountID">
+            <div id="usernamePasswordFields">
+                <label for="Username">Tên đăng nhập</label>
+                <input type="text" id="Username" name="Username" required>
+                <label for="Password">Mật khẩu</label>
+                <input type="password" id="Password" name="Password" required>
+                <label for="Password">Số tài khoản</label>
+                <input type="text" id="accNumber" name="accountNumber" required>
+            </div>
+            <label for="Email">Email</label>
+            <input type="text" id="Email" name="Email" required>
+            <label for="AccountType">Account Type</label>
+            <input type="text" id="AccountType" name="AccountType">
+            <label for="Balance">Balance</label>
+            <input type="number" id="Balance" name="Balance" step="0.01">
+            <label for="Status">Status</label>
+            <select id="Status" name="Status">
+                <option value="active">Active</option>
+                <option value="locked">Locked</option>
+            </select>
+            <button type="submit" class="action-btn add-btn">Lưu</button>
+            <button type="button" class="close-btn" onclick="closeForm()">Đóng</button>
+        </form>
+    </div>
+
+    <script>
+        function showAddForm() {
+            document.getElementById('formTitle').textContent = 'Thêm Tài khoản Mới';
+            document.getElementById('accountForm').style.display = 'block';
+            document.getElementById('accountFormAction').action = "/accounts/add";
+            document.getElementById('AccountID').value = '';
+            document.getElementById('Username').value = '';
+            document.getElementById('Email').value = '';
+            document.getElementById('AccountType').value = '';
+            document.getElementById('Balance').value = '';
+            document.getElementById('Status').value = 'Active';
+        }
+
+        function showEditForm(accountID, username, email, accountType, balance, status) {
+            document.getElementById('formTitle').textContent = 'Sửa Tài khoản';
+            document.getElementById('AccountID').value = accountID;
+            document.getElementById('Username').value = username;
+            document.getElementById('Email').value = email;
+            document.getElementById('AccountType').value = accountType;
+            document.getElementById('Balance').value = balance;
+            document.getElementById('Status').value = status;
+            document.getElementById('accountForm').style.display = 'block';
+            document.getElementById('accountFormAction').action = `/accounts/edit/${accountID}`;
+            document.getElementById('usernamePasswordFields').style.display = 'none';
+        }
+
+        function closeForm() {
+            document.getElementById('accountForm').style.display = 'none';
+        }
+
+        function lockAccount(accountID) {
+            if (confirm('Bạn có chắc chắn muốn khóa tài khoản này?')) {
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/accounts/lock/' + accountID;  // Đường dẫn API khóa tài khoản
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>
