@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Boxicons -->
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<!-- My CSS -->
+	<link rel="stylesheet" href="../../../static/css/style.css">
+	<link rel="shortcut icon" href="../../../static/images/9703596.png" type="image/x-icon">
+	<link rel="icon" href="../../../static/images/9703596.png" type="image/x-icon">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+	<title>Admin</title>
+</head>
+<body>
+
+
+	<!-- SIDEBAR -->
+	<section id="sidebar">
+		<a href="/admin" class="brand">
+			<i class='bx bxs-smile'></i>
+			<span class="text">Admin</span>
+		</a>
+		<ul class="side-menu top">
+			<li class="side-menu-li">
+				<a href="/admin">
+					<i class='bx bxs-dashboard' ></i>
+					<span class="text">Dashboard</span>
+				</a>
+			</li>
+			<li class="active side-menu-li">
+				<a href="/admin/user">
+					<i class='bx bxs-user'></i>
+					<span class="text">Quản lý người dùng</span>
+					<!-- <i class='bx bx-chevron-right'></i> -->
+				</a>
+			</li>
+			<li class="side-menu-li">
+				<a href="/admin/account">
+					<i class='bx bxs-user-account'></i>
+					<span class="text">Quản lý tài khoản</span>
+					<!-- <i class='bx bx-chevron-right'></i> -->
+				</a>
+			</li>
+			<li class="side-menu-li">
+				<a href="/admin/transaction">
+					<i class='bx bx-bar-chart-alt'></i>
+					<span class="text">Quản lý giao dịch</span>
+				</a>
+			</li>
+		</ul>
+		<ul class="side-menu">
+			<li>
+				<a href="#" class="logout">
+					<i class='bx bxs-log-out-circle' ></i>
+					<span class="text">Đăng xuất</span>
+				</a>
+			</li>
+		</ul>
+	</section>
+	<!-- SIDEBAR -->
+
+
+
+	<!-- CONTENT -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class='bx bx-menu' ></i>
+			<a href="#" class="nav-link">Danh mục</a>
+			<form action="#">
+				<div class="form-input">
+					<input type="search" placeholder="Tìm kiếm...">
+					<button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
+				</div>
+			</form>
+			<input type="checkbox" id="switch-mode" hidden>
+			<label for="switch-mode" class="switch-mode"></label>
+			<a href="#" class="notification">
+				<i class='bx bxs-bell' ></i>
+				<span class="num">8</span>
+			</a>
+			<a href="#" class="profile">
+				<img src="../../../static/images/images.jpg">
+			</a>
+		</nav>
+		<!-- NAVBAR -->
+
+		<!-- MAIN -->
+		<main>
+			<div class="head-title">
+				<div class="left">
+					<h1>Người dùng</h1>
+					<ul class="breadcrumb">
+						<li>
+							<a href="#">Quản lý người dùng</a>
+						</li>
+						<li><i class='bx bx-chevron-right' ></i></li>
+						<li>
+							<a class="active" href="#">Quản lý người dùng</a>
+						</li>
+					</ul>
+				</div>
+				<a href="/admin/user/create" class="btn-download">
+					<span class="text">Thêm mới</span>
+				</a>
+			</div>
+			<div class="table-data">
+				<div class="order">
+					<div class="head">
+						<h3>Danh sách người dùng</h3>
+						<i class='bx bx-search' ></i>
+						<i class='bx bx-filter' ></i>
+					</div>
+					<table>
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Tên khách hàng</th>
+                                <th>Email</th>
+								<th>Trạng thái</th>
+                                <th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									<p>1</p>
+								</td>
+								<td>Nguyễn Văn A</td>
+                                <td>Test@gmail.com</td>
+								<td><span class="status success">Đang hoạt động</span></td>
+                                <td>
+                                    <a href="/admin/user/edit"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
+                                    <a href="#" onclick="confirmLockUser(event)"><span class="text-danger"><i class='bx bxs-lock' ></i>Khóa</span></a>
+                                </td>
+							</tr>
+							<tr>
+								<td>
+									<p>2</p>
+								</td>
+								<td>Nguyễn Văn B</td>
+                                <td>Test1@gmail.com</td>
+								<td><span class="status error">Đang bị khóa</span></td>
+                                <td>
+                                    <a href="/admin/user/edit"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
+                                    <a href="#" ><span class="text-blue"><i class='bx bxs-lock-open' ></i>Bỏ khóa</span></a></td>
+							</tr>
+							<tr>
+								<td>
+									<p>3</p>
+								</td>
+								<td>Nguyễn Văn C</td>
+                                <td>Test2@gmail.com</td>
+								<td><span class="status success">Đang hoạt động</span></td>
+                                <td>
+                                    <a href="/admin/user/edit"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
+                                    <a href="#" onclick="confirmLockUser(event)"><span class="text-danger"><i class='bx bxs-lock' ></i>Khóa</span></a>
+							</tr>
+							<tr>
+								<td>
+									<p>4</p>
+								</td>
+								<td>Nguyễn Văn D</td>
+                                <td>Test3@gmail.com</td>
+								<td><span class="status success">Đang hoạt động</span></td>
+                                <td>
+                                    <a href="/admin/user/edit"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
+                                    <a href="#" onclick="confirmLockUser(event)"><span class="text-danger"><i class='bx bxs-lock' ></i>Khóa</span></a>
+							</tr>
+							<tr>
+								<td>
+									<p>5</p>
+								</td>
+								<td>Nguyễn Văn E</td>
+                                <td>Test4@gmail.com</td>
+								<td><span class="status error">Đang bị khóa</span></td>
+                                <td>
+                                    <a href="/admin/user/edit"><span class="text-nomal"><i class='bx bx-pencil'></i>Sửa</span></a> | 
+                                    <a href="#" ><span class="text-blue"><i class='bx bxs-lock-open' ></i>Bỏ khóa</span></a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</main> 
+		<!-- MAIN -->
+	</section>
+	<!-- CONTENT -->
+	
+
+	<script src="../../../static/js/script.js"></script>
+</body>
+</html>
