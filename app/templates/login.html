@@ -3,8 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login and Register</title>
-    <link rel="stylesheet" href="../static/css/login.css" />
+    <title>Đăng nhập</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/login.css') }}"
+    />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
@@ -12,19 +15,18 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <style></style>
   </head>
   <body>
     <div class="wrapper">
-      <form action="#">
-        <h2>Login</h2>
+      <form method="POST" action="{{ url_for('auth.login') }}">
+        <h2>Đăng nhập</h2>
         <div class="input-field">
-          <input type="text" id="username" required />
-          <label>UserName</label>
+          <input type="text" id="username" name="username" required />
+          <label>Username</label>
         </div>
         <div class="input-field">
-          <input type="password" id="password" required />
-          <label>Password</label>
+          <input type="password" id="password" name="password" required />
+          <label>Mật khẩu</label>
           <span class="eye-icon show-password">
             <i class="fa-solid fa-eye"></i>
           </span>
@@ -32,31 +34,32 @@
             <i class="fa-solid fa-eye-slash"></i>
           </span>
         </div>
-        <p class="error-message" id="errorMessage"></p>
+        <p class="error-message" id="errorMessage">
+          {% with messages = get_flashed_messages(with_categories=true) %} {% if
+          messages %} {% for category, message in messages %}
+          <span class="{{ category }}">{{ message }}</span>
+          {% endfor %} {% endif %} {% endwith %}
+        </p>
         <div class="forget">
-          <label for="remember">
-            <input type="checkbox" id="remember" />
-            <p>Remember me</p>
-          </label>
-          <a href="/login/forgot-password">Forgot password?</a>
+          <a href="/login/forgot-password">Quên mật khẩu?</a>
         </div>
-        <button class="login-btn" type="submit">Log In</button>
+        <button class="login-btn" type="submit">Đăng nhập</button>
         <div class="register">
-          <p>Don't have an account? <a href="/register">Register</a></p>
+          <p>Bạn chưa có tài khoản? <a href="/register">Đăng ký</a></p>
         </div>
       </form>
     </div>
 
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="popupMessage">
+      <div class="message" id="popupText"></div>
+      <button class="close-btn" id="closePopup">Đóng</button>
+    </div>
+
     <script>
       const passwordField = document.getElementById("password");
-      const usernameFiled = document.getElementById("username");
       const showIcon = document.querySelector(".show-password");
       const hideIcon = document.querySelector(".hide-password");
-      const loginBtn = document.querySelector(".login-btn");
-      const errorMessage = document.getElementById("errorMessage");
-
-      const validUsername = "admin";
-      const validPassword = "admin";
 
       passwordField.oninput = function () {
         if (passwordField.value !== "") showIcon.style.display = "inline";
@@ -77,37 +80,31 @@
         hideIcon.style.display = "none";
       };
 
-      loginBtn.onclick = function (event) {
-        event.preventDefault();
+      document.addEventListener("DOMContentLoaded", function () {
+        const isOpenPopup = {{ is_open_popup | tojson }};
+        console.log(isOpenPopup);
+        const popupMessage = document.getElementById("popupMessage");
+        const popupText = document.getElementById("popupText");
+        const closePopup = document.getElementById("closePopup");
 
-        const username = usernameFiled.value;
-        const password = passwordField.value;
-        let message = "";
-
-        if (username === "") message = "Please enter your username";
-        else {
-          if (password === "") message = "Please enter your password";
-          else {
-            if (username !== validUsername || password !== validPassword) {
-              message = "Invalid username or password";
-            } else {
-              errorMessage.textContent = "";
-              alert("Login successful!");
-              passwordField.value = "";
-              usernameFiled.value = "";
-            }
-          }
+        if (isOpenPopup) {
+          // Set message and show popup
+          popupText.textContent = "{{ message }}"; // Display the message
+          popupMessage.style.display = "flex";
+          overlay.style.display = "block";
         }
 
-        errorMessage.textContent = message;
+        // Close popup when the close button is clicked
+        closePopup.onclick = function () {
+          popupMessage.style.display = "none";
+          overlay.style.display = "none";
+        };
 
-        if (username === validUsername && password === validPassword) {
-          errorMessage.textContent = "";
-          alert("Login successful!");
-        } else {
-          errorMessage.style.display = "block";
-        }
-      };
+        overlay.onclick = function () {
+          popupMessage.style.display = "none";
+          overlay.style.display = "none"; // Ẩn overlay khi nhấp vào overlay
+        };
+      });
     </script>
   </body>
 </html>

@@ -10,9 +10,24 @@
       rel="stylesheet"
     />
     <!-- My CSS -->
-    <link rel="stylesheet" href="../static/css/credit_score.css" />
+    <link rel="stylesheet" href="../static/css/change_email.css" />
 
-    <title>Đổi điểm thưởng</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <title>Cài đặt</title>
+    <style>
+      .error-message .danger {
+        color: red;
+      }
+
+      .error-message .success {
+        color: green;
+      }
+    </style>
   </head>
   <body>
     <!-- SIDEBAR -->
@@ -40,13 +55,13 @@
             <span class="text">Chuyển tiền</span>
           </a>
         </li>
-        <li class="active">
+        <li>
           <a href="/account/credit-score">
             <i class="bx bxs-gift"></i>
             <span class="text">Đổi điểm thưởng</span>
           </a>
         </li>
-        <li>
+        <li class="active">
           <a href="/account/settings">
             <i class="bx bxs-cog"></i>
             <span class="text">Cài đặt</span>
@@ -78,42 +93,47 @@
       <main>
         <div class="head-title">
           <div class="left">
-            <h1>Đổi điểm thưởng</h1>
+            <h1>Đổi email</h1>
             <ul class="breadcrumb">
               <li>
-                <a href="#">Đổi điểm thưởng</a>
+                <a href="#">Đổi email</a>
               </li>
             </ul>
           </div>
         </div>
 
-        <ul class="box-info">
-          <li>
-            <div class="my-account">
-              <i class="bx bx-transfer"></i>
-              <span class="text">
-                <h3>Quy chế đổi điểm thưởng</h3>
-              </span>
-            </div>
-            <div class="rule">
-              <div class="pcoin"><i class="bx bxs-dollar-circle"></i></div>
-              <div>
-                <span>10000 PCoin</span>
-                <i class="bx bx-transfer"></i>
-                <span class="drl">10 Điểm rèn luyện</span>
+        <form action="/account/change-email" method="post">
+          <div class="transaction-query">
+            <div class="title">Đổi email</div>
+            <div class="account-number-wrapper">
+              <div class="account-number-text">Email</div>
+              <div class="account-number-detail">
+                buicongbac182004@gmail.com
               </div>
             </div>
-            <div class="my-coin">
-              <div class="text">
-                Tổng số coin bạn đang có:
-                <span class="total-coin"
-                  >{{account.creditScored}} <i class="bx bxs-dollar-circle"></i
-                ></span>
+            <div class="account-number-wrapper">
+              <div class="account-number-text">Email mới</div>
+              <div class="account-number-detail">
+                <input type="email" name="new_email" />
               </div>
             </div>
-            <div class="convert">Đổi hết coin thành ĐRL</div>
-          </li>
-        </ul>
+            <div class="account-number-wrapper">
+              <div class="account-number-text">Mã xác thực</div>
+              <div class="account-number-detail">
+                <input type="text" name="verification_code" />
+              </div>
+            </div>
+            <p class="error-message" id="errorMessage">
+              {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %} {% for category, message in messages %}
+              <span class="{{ category }}">{{ message }}</span>
+              {% endfor %} {% endif %} {% endwith %}
+            </p>
+            <button type="submit" class="my-info-confirm confirm-update-btn">
+              Cập nhật email
+            </button>
+          </div>
+        </form>
       </main>
       <!-- MAIN -->
     </section>

@@ -6,37 +6,53 @@ from flask import render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db
-from app.models import Account
+from app.models import Account, Customer
 
 from app.controllers.email_controller import send_verification_email
 
 
-def generate_account_id(inlength=8):
-    return "".join(random.choices(string.digits, k=inlength))
+def generate_account_id(id_length=8):
+    return "".join(random.choices(string.digits, k=id_length))
 
 
-def retrieving_account():
+def retrieve_account():
     accounts = Account.query.all()  # Lấy danh sách tất cả các tài khoản từ DB
     return render_template("account_list.html", accounts=accounts)
 
 
-def create_account():
-    if request.method == "POST":
-        account_data = {
-            "AccountID": generate_account_id(10),
-            "Username": request.form["Username"],
-            "Password": request.form["Password"],
-            "Email": request.form["Email"],
-            "AccountType": request.form.get("AccountType", "standard"),
-            "Balance": request.form.get("Balance", 50000),
-            "Status": request.form.get("Status", "active"),
-            "PinCode": request.form.get("PinCode"),
-            "creditScored": request.form.get("creditScored", 0),
-        }
-        new_account = Account(**account_data)
+def is_strong_password(password):
+    message, category = "", ""
+    if len(password) < 8:
+        message, category = "Mật khẩu phải có ít nhất 8 ký tự.", "danger"
+    elif not any(char.isupper() for char in password):
+        message, category = "Mật khẩu phải có ít nhất 1 chữ cái viết hoa.", "danger"
+    elif not any(char.islower() for char in password):
+        message, category = "Mật khẩu phải có ít nhất 1 chữ cái viết thường.", "danger"
+    elif not any(char.isdigit() for char in password):
+        message, category = "Mật khẩu phải có ít nhất 1 chữ số.", "danger"
+    elif not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        message, category = "Mật khẩu phải có ít nhất 1 ký tự đặc biệt.", "danger"
+    elif any(char.isspace() for char in password):
+        message, category = "Mật khẩu không được chứa khoảng trắng.", "danger"
+    else:
+        message, category = "Mật khẩu hợp lệ.", "success"
+    return message, category
+
+
+def handle_create_account(data):
+    if "Password" in data:
+        message, category = is_strong_password(data["Password"])
+        if category == "danger":
+            return message, category
+        data["Password"] = generate_password_hash(data["Password"])
+    new_account = Account(**data)
+    try:
         db.session.add(new_account)
         db.session.commit()
-        return redirect(url_for("account_list"))
+        return "Account created successfully!", "success"
+    except Exception as e:
+        db.session.rollback()
+        return f"An error occurred: {str(e)}", "danger"
 
 
 def edit_account(account_id):
@@ -55,6 +71,18 @@ def edit_account(account_id):
 
         db.session.commit()  # Lưu thay đổi vào DB
         return redirect(url_for("account_list"))
+
+
+def get_detail_account(account_id):
+    if not account_id:
+        return "Bạn chưa đăng nhập", "danger", [None, None]
+
+    # Truy vấn thông tin tài khoản từ DB dựa trên account_id
+    account = Account.query.get(account_id)
+    if not account:
+        return "Tài khoản không tồn tại", "danger", [None, None]
+    customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
+    return "", "success", [account, customer]
 
 
 def locked_account(account_id):
@@ -120,67 +148,129 @@ def set_account_number(account_number):
         return redirect(url_for("choose_account_number"))
 
 
-def forgot_password():
-    if request.method == "POST":
-        email = request.form["email"]
+def handle_forgot_password(data):
+    # Tìm tài khoản theo email
+    customer = Customer.query.filter_by(Email=data["email"]).first()
+    if customer:
+        account = Account.query.filter_by(CustomerID=customer.CustomerID).first()
 
-        # Tìm tài khoản theo email
-        account = Account.query.filter_by(email=email).first()
+        # Tạo mã xác thực ngẫu nhiên
+        verification_code = str(random.randint(100000, 999999))
 
-        if account:
-            # Tạo mã xác thực ngẫu nhiên
-            verification_code = str(random.randint(100000, 999999))
+        # Lưu mã xác thực và ID tài khoản vào session
+        session["verification_code"] = verification_code
+        session["account_id"] = account.AccountID
 
-            # Lưu mã xác thực và ID tài khoản vào session
-            session["verification_code"] = verification_code
-            session["account_id"] = account.accountID
+        # Gửi email xác thực
+        message, category = send_verification_email(
+            data["email"], verification_code, "MÃ XÁC THỰC ĐỔI MẬT KHẨU"
+        )
 
-            # Gửi email xác thực
-            send_verification_email(email, verification_code)
+        return message, category
+    else:
+        # Email không tồn tại trong hệ thống
+        return "Email không tồn tại trong hệ thống.", "danger"
 
-            # Thông báo thành công và chuyển hướng
-            flash("Mã xác thực đã được gửi đến email của bạn.", "success")
-            return redirect(url_for("reset_password"))
+
+def handle_verify_pin(verify_code):
+    verification_code = session["verification_code"]
+    if verification_code == verify_code:
+        return "Mã xác thực chính xác", "success"
+    else:
+        return "Mã xác thực không đúng, vui lòng kiểm tra lại!", "danger"
+
+
+def handle_reset_password(new_password, confirm_password):
+
+    if new_password != confirm_password:
+        return "Mật khẩu mới và mật khẩu nhập lại không khớp.", "danger"
+
+    # Kiểm tra mã xác thực
+    account_id = session.get("account_id")
+    account = Account.query.get(account_id)
+
+    if account:
+        # Hash và lưu mật khẩu mới
+        hashed_password = generate_password_hash(new_password)
+        account.Password = hashed_password
+        db.session.commit()
+
+        # Xóa ID tài khoản khỏi session
+        session.pop("account_id", None)
+
+        return "Mật khẩu đã được thay đổi thành công.", "success"
+    else:
+        return "Tài khoản không tồn tại.", "danger"
+
+
+def handle_send_change_email_pin(email):
+    if email:
+        verification_code = str(random.randint(100000, 999999))
+        # Lưu mã xác thực và ID tài khoản vào session
+        session["verification_code"] = verification_code
+        # Gửi email xác thực
+        message, category = send_verification_email(
+            email, verification_code, "MÃ XÁC THỰC ĐỔI EMAIL"
+        )
+        return message, category
+    else:
+        return "Bạn chưa đăng nhập", "danger"
+
+
+def handle_change_email(new_email, verify_code):
+    verification_code = session["verification_code"]
+    if verification_code == verify_code:
+        # Kiểm tra email đã tồn tại hay chưa
+        if Customer.query.filter_by(Email=new_email).first():
+            return "Email đã tồn tại trong hệ thống.", "danger"
         else:
-            # Email không tồn tại trong hệ thống
-            flash("Email không tồn tại trong hệ thống.", "danger")
-
-    return render_template("forgot_password.html")
-
-
-def reset_password():
-    if request.method == "POST":
-        verification_code = request.form["verification_code"]
-        new_password = request.form["new_password"]
-        confirm_password = request.form["confirm_password"]
-
-        if new_password != confirm_password:
-            flash("Mật khẩu mới và mật khẩu nhập lại không khớp.", "danger")
-            return render_template("reset_password.html")
-
-        # Kiểm tra mã xác thực
-        if session.get("verification_code") == verification_code:
             account_id = session.get("account_id")
             account = Account.query.get(account_id)
-
             if account:
-                # Hash và lưu mật khẩu mới
-                hashed_password = generate_password_hash(new_password)
-                account.Password = hashed_password
-                db.session.commit()
+                customer = Customer.query.filter_by(
+                    CustomerID=account.CustomerID
+                ).first()
+                if customer:
+                    customer.Email = new_email
+                    db.session.commit()
+                    return "Email đã được thay đổi thành công!", "success"
+    return "Mã xác thực không chính xác, vui lòng thử lại", "danger"
 
-                # Xóa mã xác thực và ID tài khoản khỏi session
-                session.pop("verification_code", None)
-                session.pop("account_id", None)
 
-                flash("Mật khẩu đã được thay đổi thành công.", "success")
-                return redirect(url_for("login"))
-            else:
-                flash("Tài khoản không tồn tại.", "danger")
-        else:
-            flash("Mã xác thực không đúng.", "danger")
+def handle_send_change_password_pin(email):
+    if email:
+        verification_code = str(random.randint(100000, 999999))
+        # Lưu mã xác thực và ID tài khoản vào session
+        session["verification_code"] = verification_code
+        # Gửi email xác thực
+        message, category = send_verification_email(
+            email, verification_code, "MÃ XÁC THỰC ĐỔI MẬT KHẨU"
+        )
+        return message, category
+    else:
+        return "Bạn chưa đăng nhập", "danger"
 
-    return render_template("reset_password.html")
+
+def handle_change_password(old_password, new_password, verify_code):
+    account_id = session.get("account_id")
+    if not account_id:
+        return "Bạn chưa đăng nhập", "danger"
+    account = Account.query.get(account_id)
+    if not account:
+        return "Tài khoản không tồn tại", "danger"
+    if not check_password_hash(account.Password, old_password):
+        return "Mật khẩu cũ không chính xác", "danger"
+    verification_code = session.get("verification_code")
+    if not verification_code or verification_code != verify_code:
+        return "Mã xác thực không chính xác", "danger"
+    hashed_new_password = generate_password_hash(new_password)
+
+    account.Password = hashed_new_password
+    db.session.commit()
+
+    session.pop("verification_code", None)
+
+    return "Đổi mật khẩu thành công", "success"
 
 
 def add_pin():

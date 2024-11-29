@@ -27,8 +27,8 @@ def create_email_message(subject, body, recipient_email):
     return message
 
 
-def send_verification_email_service(email, verification_code):
-    subject = "Mã xác thực đổi mật khẩu"
+def send_verification_email_service(email, verification_code, subject):
+    subject = subject
     body = f"Mã xác thực của bạn là: {verification_code}"
 
     # Tạo email và gửi
@@ -36,9 +36,9 @@ def send_verification_email_service(email, verification_code):
     try:
         with setup_email_server() as server:
             server.sendmail(SENDER_EMAIL, email, message.as_string())
-            print("Email mã xác thực đã được gửi thành công.")
+            return "Mã xác thực đã được gửi tới email của bạn", "success"
     except Exception as e:
-        print("Error sending verification email:", e)
+        return f"An error occurred: {str(e)}", "danger"
 
 
 def send_transaction_email(user_email, transaction_details):
@@ -66,7 +66,7 @@ Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.
         print("Không thể gửi email thông báo giao dịch. Lỗi:", e)
 
 
-def send_withdrawtransaction_email(user_email, transaction_details):
+def send_withdraw_transaction_email(user_email, transaction_details):
     subject = "Thông báo giao dịch thành công"
     body = f"""Xin chào,
 

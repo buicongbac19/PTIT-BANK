@@ -150,5 +150,32 @@ button:hover {
 .error-message {
   color: red;
   margin-top: 10px;
-  display: none;
+  margin-bottom: 10px;
+}
+
+.password-request {
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  font-size: 12px;
+  row-gap: 5px;
+}
+
+.password-request-title {
+  margin-right: auto;
+}
+
+.password-request-item {
+  display: flex;
+  align-items: center;
+  column-gap: 5px;
+}
+
+.error-message .danger {
+  color: red;
+}
+
+.error-message .success {
+  color: green;
 }

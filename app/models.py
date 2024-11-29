@@ -28,9 +28,8 @@ class Account(db.Model):
     )  # Khóa ngoại
     Username = db.Column(db.String, nullable=False)
     Password = db.Column(db.String, nullable=False)
-    Email = db.Column(db.String, unique=True)
     AccountType = db.Column(db.String)
-    Balance = db.Column(db.Numeric(15, 2))  # Dữ liệu kiểu DECIMAL trong MySQL
+    Balance = db.Column(db.Integer)  # Dữ liệu kiểu DECIMAL trong MySQL
     DateOpened = db.Column(db.Date)
     accountNumber = db.Column(db.String, unique=True)
     Status = db.Column(db.String)

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register</title>
+    <title>Tạo tài khoản</title>
     <link rel="stylesheet" href="../static/css/register.css" />
     <link
       rel="stylesheet"
@@ -16,38 +16,95 @@
   </head>
   <body>
     <div class="wrapper">
-      <form action="#">
-        <h2>Create an account</h2>
+      <form action="/register/create-account" method="post">
+        <h2>Tạo tài khoản</h2>
+        <input type="hidden" name="CustomerID" value="{{ customer_id }}" />
         <div class="input-field">
-          <input type="text" id="username" required />
+          <input type="text" id="username" name="Username" required />
           <label>Username</label>
         </div>
         <div class="input-field">
-          <input type="text" id="username" required />
-          <label>Password</label>
+          <input type="password" id="password" name="Password" required />
+          <label>Mật khẩu</label>
+          <span class="eye-icon show-password">
+            <i class="fa-solid fa-eye"></i>
+          </span>
+          <span class="eye-icon hide-password">
+            <i class="fa-solid fa-eye-slash"></i>
+          </span>
         </div>
-        <p class="error-message" id="errorMessage"></p>
-        <button class="login-btn" type="submit">Register</button>
+        <div class="password-request">
+          <p class="password-request-title">Mật khẩu cần có:</p>
+          <div class="password-request-item">
+            <i class="fa-solid fa-circle-check request-1"></i>
+            <p>Từ 8 ký tự trở lên</p>
+          </div>
+          <div class="password-request-item">
+            <i class="fa-solid fa-circle-check request-2"></i>
+            <p>Có ít nhất 1 chữ cái viết hoa</p>
+          </div>
+          <div class="password-request-item">
+            <i class="fa-solid fa-circle-check request-3"></i>
+            <p>Có ít nhất 1 chữ cái viết thường</p>
+          </div>
+          <div class="password-request-item">
+            <i class="fa-solid fa-circle-check request-4"></i>
+            <p>Có ít nhất 1 chữ số</p>
+          </div>
+          <div class="password-request-item">
+            <i class="fa-solid fa-circle-check request-5"></i>
+            <p>Có ít nhất 1 ký tự đặc biệt</p>
+          </div>
+          <div class="password-request-item">
+            <i class="fa-solid fa-circle-check request-6"></i>
+            <p>Không chứa khoảng trắng</p>
+          </div>
+        </div>
+        <p class="error-message" id="errorMessage">
+          {% with messages = get_flashed_messages(with_categories=true) %} {% if
+          messages %} {% for category, message in messages %}
+          <span class="{{ category }}">{{ message }}</span>
+          {% endfor %} {% endif %} {% endwith %}
+        </p>
+        <button class="login-btn" type="submit">Đăng ký</button>
         <div class="register">
-          <p>Have an account? <a href="/login">Login</a></p>
+          <p>Đã có tài khoản? <a href="/login">Đăng nhập</a></p>
         </div>
       </form>
     </div>
 
     <script>
       const passwordField = document.getElementById("password");
-      const usernameFiled = document.getElementById("username");
       const showIcon = document.querySelector(".show-password");
       const hideIcon = document.querySelector(".hide-password");
-      const loginBtn = document.querySelector(".login-btn");
-      const errorMessage = document.getElementById("errorMessage");
 
-      const validUsername = "admin";
-      const validPassword = "admin";
+      const conditions = [
+        { regex: /.{8,}/, element: document.querySelector(".request-1") }, // Từ 8 ký tự trở lên
+        { regex: /[A-Z]/, element: document.querySelector(".request-2") }, // Ít nhất 1 chữ cái viết hoa
+        { regex: /[a-z]/, element: document.querySelector(".request-3") }, // Ít nhất 1 chữ cái viết thường
+        { regex: /\d/, element: document.querySelector(".request-4") }, // Ít nhất 1 chữ số
+        {
+          regex: /[!@#$%^&*(),.?":{}|<>]/,
+          element: document.querySelector(".request-5"),
+        }, // Ít nhất 1 ký tự đặc biệt
+        { regex: /^\S+$/, element: document.querySelector(".request-6") }, // Không chứa khoảng trắng
+      ];
+
+      // Hàm kiểm tra và cập nhật màu sắc
+      function checkPasswordConditions(password) {
+        conditions.forEach((condition) => {
+          if (condition.regex.test(password)) {
+            condition.element.style.color = "#00ff00"; // Điều kiện thỏa mãn
+          } else {
+            condition.element.style.color = ""; // Trở về mặc định
+          }
+        });
+      }
 
       passwordField.oninput = function () {
         if (passwordField.value !== "") showIcon.style.display = "inline";
         else showIcon.style.display = "none";
+        checkPasswordConditions(passwordField.value);
       };
 
       hideIcon.style.display = "none";
@@ -62,38 +119,6 @@
         passwordField.type = "password";
         showIcon.style.display = "inline";
         hideIcon.style.display = "none";
-      };
-
-      loginBtn.onclick = function (event) {
-        event.preventDefault();
-
-        const username = usernameFiled.value;
-        const password = passwordField.value;
-        let message = "";
-
-        if (username === "") message = "Please enter your username";
-        else {
-          if (password === "") message = "Please enter your password";
-          else {
-            if (username !== validUsername || password !== validPassword) {
-              message = "Invalid username or password";
-            } else {
-              errorMessage.textContent = "";
-              alert("Login successful!");
-              passwordField.value = "";
-              usernameFiled.value = "";
-            }
-          }
-        }
-
-        errorMessage.textContent = message;
-
-        if (username === validUsername && password === validPassword) {
-          errorMessage.textContent = "";
-          alert("Login successful!");
-        } else {
-          errorMessage.style.display = "block";
-        }
       };
     </script>
   </body>

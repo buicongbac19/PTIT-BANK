@@ -2,7 +2,6 @@ import random
 import string
 from decimal import Decimal
 from sqlalchemy import or_
-import uuid
 import re
 
 from flask import (
@@ -17,20 +16,21 @@ from flask import (
 
 from app.controllers.email_controller import (
     send_transaction_email,
-    send_withdrawtransaction_email,
+    send_withdraw_transaction_email,
 )
 from werkzeug.security import check_password_hash, generate_password_hash
+
 from datetime import datetime
 
 from app import db
 from app.models import Customer, Account, Transaction
 
 
-def generate_account_id(inlength=8):
-    return "".join(random.choices(string.digits, k=inlength))
+def generate_account_id(id_length=8):
+    return "".join(random.choices(string.digits, k=id_length))
 
 
-def retrieve_user():
+def get_list_user():
     users = (
         db.session.query(Customer, Account.Status)
         .join(Account, Customer.Email == Account.Email)
@@ -39,40 +39,40 @@ def retrieve_user():
     return render_template("user_list.html", customers=users)
 
 
-def add_user():
-    # Lấy dữ liệu từ biểu mẫu
-    customer_id = request.form["CustomerID"]
-    first_name = request.form["FirstName"]
-    last_name = request.form["LastName"]
-    date_of_birth = request.form.get("DateOfBirth")
-    role = request.form["Role"]
-    email = request.form["Email"]
-    phone_number = request.form["PhoneNumber"]
-    address = request.form.get("Address")
-    city = request.form.get("City")
-    country = request.form.get("Country")
-    notes = request.form.get("Notes")
+def handle_create_user(data):
+    try:
+        # Chuyển đổi ngày sinh từ chuỗi sang datetime.date
+        if data["date_of_birth"]:  # Kiểm tra nếu ngày sinh được cung cấp
+            data["date_of_birth"] = datetime.strptime(
+                data["date_of_birth"], "%d/%m/%Y"
+            ).date()
+        else:
+            data["date_of_birth"] = None
+    except ValueError:
+        return "Vui lòng nhập ngày sinh theo dạng dd/MM/yyyy.", "danger", None
 
     # Tạo đối tượng Customer mới
     new_customer = Customer(
-        CustomerID=customer_id,
-        FirstName=first_name,
-        LastName=last_name,
-        DateOfBirth=date_of_birth,
-        Role=role,
-        Email=email,
-        PhoneNumber=phone_number,
-        Address=address,
-        City=city,
-        Country=country,
-        Notes=notes,
+        CustomerID=data["customer_id"],
+        FirstName=data["first_name"],
+        LastName=data["last_name"],
+        DateOfBirth=data["date_of_birth"],
+        Role=data["role"],
+        Email=data["email"],
+        PhoneNumber=data["phone_number"],
+        Address=data["address"],
+        City=data["city"],
+        Country=data["country"],
+        Notes=data["notes"],
     )
 
-    # Lưu vào cơ sở dữ liệu
-    db.session.add(new_customer)
-    db.session.commit()
-
-    return redirect(url_for("user_list"))
+    try:
+        db.session.add(new_customer)
+        db.session.commit()
+        return "Customer registered successfully!", "success", data["customer_id"]
+    except Exception as e:
+        db.session.rollback()
+        return f"An error occurred: {str(e)}", "danger", None
 
 
 def change_status_account(customer_id):
@@ -218,17 +218,17 @@ def process_transfer():
 def initiate_transfer():
     if request.method == "POST":
         recipient_account = request.form["recipient_account"]
-        amountstr = request.form["amount"]
-        amount = Decimal(amountstr)
+        amount_str = request.form["amount"]
+        amount = Decimal(amount_str)
         content = request.form["content"]
         account_id = session.get("account_id")
         # Kiểm tra thông tin chuyển khoản
         if not recipient_account or not amount or not content:
             flash("Vui lòng nhập đầy đủ thông tin ", "danger")
 
-        account_recip = Account.query.get(recipient_account)
+        account_receipt = Account.query.get(recipient_account)
         account_send = Account.query.get(account_id)
-        if not account_recip:
+        if not account_receipt:
             flash("Tài khoản người nhận không tồn tại!")
             return redirect(url_for("transfer"))
         if account_send.balance < amount:
@@ -334,7 +334,7 @@ def process_withdrawal():
                     "%Y-%m-%d %H:%M:%S"
                 ),
             }
-            send_withdrawtransaction_email(account.Email, transaction_details)
+            send_withdraw_transaction_email(account.Email, transaction_details)
 
             flash("Rút tiền thành công! Vui lòng kiểm tra email")
             return render_template("receip_withdraw")
@@ -345,26 +345,40 @@ def process_withdrawal():
     return render_template("withdraw.html")
 
 
-def login():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        # Kiểm tra username
-        account = Account.query.filter_by(username=username).first()
-        if not account:
-            flash("Tên đăng nhập không tồn tại", "danger")
-            return render_template("login.html")
-        # Kiểm tra password
-        if not check_password_hash(account.password, password):
-            flash("Mật khẩu không đúng", "danger")
-            return render_template("login.html")
+def handle_login(username, password):
 
-        # Đăng nhập thành công
-        session["account_id"] = account.accountID
-        flash("Đăng nhập thành công!", "success")
-        return redirect(url_for("dashboard"))
+    account = Account.query.filter_by(Username=username).first()
+    if not account:
+        return "Tên đăng nhập không tồn tại", "danger", None
+    attempts = session.get("login_attempts", 0)
+    if attempts >= 5:
+        return (
+            "Tài khoản của bạn đã bị khóa do nhập sai quá nhiều lần. Vui lòng thử lại sau 15 phút",
+            "warning",
+            None,
+        )
 
-    return render_template("login.html")
+    # Kiểm tra password
+    if not check_password_hash(account.Password, password):
+        attempts += 1
+        session["login_attempts"] = attempts  # Cập nhật số lần nhập sai trong session
+
+        remaining_attempts = 5 - attempts
+        if attempts >= 5:
+            return (
+                "Bạn đã nhập sai mật khẩu quá 5 lần. Tài khoản của bạn đã bị khóa trong 15 phút",
+                "warning",
+                None,
+            )
+        return (
+            f"Mật khẩu không đúng. Bạn còn {remaining_attempts} lần thử.",
+            "warning",
+            None,
+        )
+
+    # Đăng nhập thành công
+    session["login_attempts"] = 0
+    return "Đăng nhập thành công!", "success", account.AccountID
 
 
 def is_valid_email(email):
