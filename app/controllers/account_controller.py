@@ -16,6 +16,9 @@ from app.services.account_service import (
     handle_change_email,
     handle_send_change_password_pin,
     handle_change_password,
+    handle_convert_credit_score,
+    handle_choose_account_number,
+    handle_choose_pin_code,
 )
 
 
@@ -68,10 +71,6 @@ def unlooked_account(account_id):
 
 def search_account():
     return search_account()
-
-
-def handle_choose_account_number(account_number):
-    return set_account_number(account_number)
 
 
 # Xử lý tạo danh sách số tài khoản cho trang lựa chọn
@@ -167,6 +166,17 @@ def change_password():
     return render_template("change_password.html")
 
 
+def convert_credit_score():
+    if request.method == "POST":
+        amount = request.form.get("amount")
+        message, category, account = handle_convert_credit_score(amount)
+        if category == "danger":
+            flash(message, category)
+            return redirect(url_for("auth.login"))
+        return redirect(url_for("home.credit_score"))
+    return render_template("credit_score.html", account=account)
+
+
 def add_pin():
     return add_pin()
 
@@ -174,3 +184,25 @@ def add_pin():
 # Controller để xử lý form đổi mã PIN
 def update_pin():
     return update_pin()
+
+
+def choose_account_number():
+    if request.method == "POST":
+        account_number = request.form.get("account_number")
+        message, category = handle_choose_account_number(account_number)
+        if category == "danger":
+            flash(message, category)
+            return render_template("choose_account_number.html")
+        return redirect(url_for("home.home"))
+    return render_template("choose_account_number.html")
+
+
+def choose_pin_code():
+    if request.method == "POST":
+        pin_code = request.form.get("pin_code")
+        message, category = handle_choose_pin_code(pin_code)
+        if category == "danger":
+            flash(message, category)
+            return render_template("choose_pin_code.html")
+        return redirect(url_for("home.transfer_money"))
+    return render_template("choose_pin_code.html")

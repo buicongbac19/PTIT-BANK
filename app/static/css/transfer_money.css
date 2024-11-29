@@ -559,6 +559,7 @@ body {
 }
 
 .my-info-confirm,
+.choose-now,
 .receiver-info-confirm,
 .confirm-transaction-btn,
 .do-another-transfer {
@@ -591,6 +592,7 @@ body {
 }
 
 .my-info-confirm:hover,
+.choose-now:hover,
 .do-another-transfer:hover,
 .receiver-info-confirm:hover,
 .confirm-transaction-btn:hover {
@@ -599,6 +601,7 @@ body {
 }
 
 .confirm-modal-wrapper,
+.confirm-choose-modal,
 .transfer-success-modal-wrapper {
   background-color: rgba(0, 0, 0, 0.32);
   width: 100%;
@@ -719,6 +722,28 @@ body {
   width: 100%;
   margin-left: 8px;
   display: block;
+}
+
+.confirm-choose-modal {
+  font-family: "Poppins", sans-serif;
+}
+
+.confirm-choose-modal .modal-body {
+  display: flex;
+}
+
+.confirm-choose-modal .modal-title {
+  font-size: 20px;
+}
+
+.confirm-choose-modal .choose-now,
+.confirm-choose-modal {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.confirm-choose-modal .choose-now {
+  width: 100%;
 }
 
 /* MAIN */

@@ -100,8 +100,10 @@
               <div class="current-info-item main-account">
                 <div class="left-content"></div>
                 <div class="right-content">
-                  <div class="fullname">BUI CONG BAC</div>
-                  <div class="account-number">0387652237</div>
+                  <div class="fullname">
+                    {{customer.FirstName+" "+customer.LastName}}
+                  </div>
+                  <div class="account-number">{{account.accountNumber}}</div>
                 </div>
               </div>
               <div class="current-info-item total-value">
@@ -109,7 +111,9 @@
                 <div class="right-content">
                   <div class="up-content">Số dư tài khoản(1)</div>
                   <div class="down-content">
-                    <div class="balance">252,280</div>
+                    <div class="balance">
+                      {{'{:,.0f}'.format(account.Balance)}}
+                    </div>
                     <div class="currency">VND</div>
                   </div>
                 </div>
@@ -123,7 +127,8 @@
           <div class="account-number-wrapper">
             <div class="account-number-text">Số tài khoản</div>
             <div class="account-number-detail">
-              0387652237/BUI CONG BAC (VND)
+              {{account.accountNumber}}/{{customer.FirstName + " " +
+              customer.LastName}} (VND)
             </div>
           </div>
           <div class="time-wrapper">

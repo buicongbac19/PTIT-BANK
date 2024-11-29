@@ -98,9 +98,11 @@
             <div class="rule">
               <div class="pcoin"><i class="bx bxs-dollar-circle"></i></div>
               <div>
-                <span>10000 PCoin</span>
+                <span>10000 <span style="color: red">PCoin</span></span>
                 <i class="bx bx-transfer"></i>
-                <span class="drl">10 Điểm rèn luyện</span>
+                <span class="drl"
+                  ><span style="color: red">10</span> Điểm rèn luyện</span
+                >
               </div>
             </div>
             <div class="my-coin">
@@ -111,7 +113,55 @@
                 ></span>
               </div>
             </div>
-            <div class="convert">Đổi hết coin thành ĐRL</div>
+            <div
+              class="convert"
+              data-credit-scored="{{ account.creditScored }}"
+            >
+              Đổi hết coin thành ĐRL
+            </div>
+            <div
+              style="color: red; margin-top: 10px"
+              class="convert-error"
+            ></div>
+            <div class="confirm-convert-modal-wrapper">
+              <div class="confirm-convert-modal">
+                <div class="modal-header">
+                  <div class="modal-title">Đổi điểm thưởng</div>
+                  <div class="modal-close-btn"><i class="bx bx-x"></i></div>
+                </div>
+                <div class="modal-body">
+                  <div class="modal-content">
+                    <p>Bạn có chắc chắn muốn đổi</p>
+                    <div style="margin: 0 5px !important" class="pcoin">
+                      <i class="bx bxs-dollar-circle"></i>
+                    </div>
+                    <span
+                      >{{account.creditScored // 10000 * 10000}}
+                      <span style="color: red">PCoin</span> thành</span
+                    >
+                    <span style="margin-left: 5px" class="drl"
+                      ><span style="color: red"
+                        >{{account.creditScored // 10000 * 10}}</span
+                      >
+                      điểm rèn luyện?</span
+                    >
+                  </div>
+                  <form action="/account/convert-credit-score" method="post">
+                    <input
+                      type="hidden"
+                      name="amount"
+                      value="{{ account.creditScored // 10000 * 10000 }}"
+                    />
+                    <button
+                      type="submit"
+                      class="my-info-confirm confirm-code-btn"
+                    >
+                      Xác nhận
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
           </li>
         </ul>
       </main>
@@ -120,5 +170,50 @@
     <!-- CONTENT -->
 
     <script src="../static/js/home.js"></script>
+    <script>
+      const convertBtn = document.querySelector(".convert");
+      const convertError = document.querySelector(".convert-error");
+      const creditScored = parseInt(convertBtn.dataset.creditScored, 10);
+      const totalCoinSpan = document.querySelector(".total-coin");
+      const confirmModal = document.querySelector(
+        ".confirm-convert-modal-wrapper"
+      );
+      const closeModalBtn = document.querySelector(".modal-close-btn");
+
+      const confirmCodeBtn = document.querySelector(".confirm-code-btn");
+
+      convertBtn.addEventListener("click", () => {
+        if (creditScored < 10000) {
+          convertError.textContent =
+            "Bạn cần có ít nhất 10000 PCoin để đổi điểm thưởng";
+        } else {
+          convertError.textContent = "";
+          confirmModal.style.display = "flex";
+        }
+      });
+
+      closeModalBtn.addEventListener("click", () => {
+        confirmModal.style.display = "none";
+      });
+
+      confirmCodeBtn.addEventListener("click", () => {
+        const currentScore = parseInt(totalCoinSpan.textContent, 10);
+        const amountToDeduct = Math.floor(currentScore / 10000) * 10000;
+        const newScore = currentScore - amountToDeduct;
+        confirmModal.style.display = "none";
+
+        let currentDisplayScore = currentScore;
+        const interval = setInterval(() => {
+          if (currentDisplayScore <= newScore) {
+            clearInterval(interval);
+            totalCoinSpan.textContent = `${newScore} `;
+            // Ẩn modal sau khi giảm xong
+          } else {
+            currentDisplayScore -= 10000; // Giảm dần mỗi lần 100
+            totalCoinSpan.textContent = `${currentDisplayScore} `;
+          }
+        }, 50); // Thời gian giữa mỗi lần cập nhật
+      });
+    </script>
   </body>
 </html>

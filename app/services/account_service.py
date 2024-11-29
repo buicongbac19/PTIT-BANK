@@ -1,6 +1,7 @@
 import random
 import string
 import re
+import unicodedata
 
 from flask import render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -134,7 +135,7 @@ def set_account_number(account_number):
     account_info = session.get("new_account")
     if not account_info:
         flash("Không tìm thấy thông tin tài khoản ", "danger")
-        return redirect(url_for("register"))
+        return redirect(url_for("auth.register"))
     account_id = account_info["AccountID"]
     # Cập nhật số tài khoản trong cơ sở dữ liệu
     account = Account.query.get(account_id)
@@ -336,3 +337,74 @@ def update_pin():
             return redirect(url_for("change_pin"))
 
     return render_template("change_pin.html")
+
+
+def handle_convert_credit_score(amount):
+    account_id = session.get("account_id")
+    if not account_id:
+        return "Bạn chưa đăng nhập", "danger", None
+    account = Account.query.filter_by(AccountID=account_id).first()
+    if not account:
+        return "Tài khoản không tồn tại", "danger", None
+    account.creditScored -= int(amount)
+    db.session.commit()
+    return "Đổi điểm thưởng thành công!", "success", account
+
+
+def handle_get_profile():
+    account_id = session.get("account_id")
+    if not account_id:
+        return "Bạn chưa đăng nhập", "danger", None, None
+    account = Account.query.filter_by(AccountID=account_id).first()
+    if not account:
+        return "Tài khoản không tồn tại", "danger", None, None
+    customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
+    return "Thông tin tài khoản", "success", account, customer
+
+
+def remove_accents(input_str):
+    nfkd_form = unicodedata.normalize("NFKD", input_str)
+    return "".join([c for c in nfkd_form if not unicodedata.combining(c)])
+
+
+def handle_choose_account_number(account_number):
+    account_id = session.get("account_id")
+    if not account_id:
+        return "Bạn chưa đăng nhập", "danger"
+    account = Account.query.filter_by(AccountID=account_id).first()
+    if not account:
+        return "Tài khoản không tồn tại", "danger"
+    if not account_number:
+        return "Số tài khoản không thể trống", "danger"
+    if not account_number.isdigit():
+        return "Số tài khoản chỉ bao gồm các chữ số", "danger"
+    if len(account_number) < 8 or len(account_number) > 16:
+        return "Số tài khoản phải có ít nhất 8 và nhiều nhất 16 chữ số", "danger"
+    if " " in account_number:
+        return "Số tài khoản không được có khoảng trắng", "danger"
+    existing_account = Account.query.filter_by(accountNumber=account_number).first()
+    if existing_account:
+        return "Số tài khoản đã tồn tại", "danger"
+    account.accountNumber = account_number
+    db.session.commit()
+    return "Chọn tài khoản thành công", "success"
+
+
+def handle_choose_pin_code(pin_code):
+    account_id = session.get("account_id")
+    if not account_id:
+        return "Bạn chưa đăng nhập", "danger"
+    account = Account.query.filter_by(AccountID=account_id).first()
+    if not account:
+        return "Tài khoản không tồn tại", "danger"
+    if not pin_code:
+        return "Mã pin không thể trống", "danger"
+    if not pin_code.isdigit():
+        return "Mã pin chỉ bao gồm các chữ số", "danger"
+    if len(pin_code) != 6:
+        return "Mã pin phải có đúng 6 chữ số!", "danger"
+    if " " in pin_code:
+        return "Mã pin không được có khoảng trắng", "danger"
+    account.PinCode = pin_code
+    db.session.commit()
+    return "Thiết lập mã pin thành công!", "success"

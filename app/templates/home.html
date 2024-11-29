@@ -11,10 +11,28 @@
     />
     <!-- My CSS -->
     <link rel="stylesheet" href="../static/css/home.css" />
-
     <title>Trang chủ</title>
   </head>
   <body>
+    <div
+      style="display: {% if not account.accountNumber %}flex{% else %}none{% endif %};"
+      class="confirm-modal-wrapper"
+    >
+      <div class="confirm-modal">
+        <div class="modal-header">
+          <div class="modal-title">
+            Vui lòng chọn số tài khoản cho tài khoản của bạn!
+          </div>
+        </div>
+        <div class="modal-body">
+          <a
+            href="/account/choose-account-number"
+            class="my-info-confirm confirm-code-btn"
+            >Chọn ngay</a
+          >
+        </div>
+      </div>
+    </div>
     <!-- SIDEBAR -->
     <section id="sidebar">
       <a href="#" class="brand">
@@ -244,5 +262,20 @@
     <!-- CONTENT -->
 
     <script src="../static/js/home.js"></script>
+    <script>
+      const modalCloseBtn = document.querySelector(".close-modal-btn");
+      const confirmModal = document.querySelector(".confirm-modal-wrapper");
+      const closeModalBtn = document.querySelector(".modal-close-btn");
+
+      const confirmCodeBtn = document.querySelector(".confirm-code-btn");
+
+      modalCloseBtn.addEventListener("click", () => {
+        confirmModal.style.display = "none";
+      });
+
+      closeModalBtn.addEventListener("click", () => {
+        confirmModal.style.display = "none";
+      });
+    </script>
   </body>
 </html>

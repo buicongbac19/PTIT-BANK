@@ -15,6 +15,21 @@
     <title>Chuyển tiền</title>
   </head>
   <body>
+    <div
+      style="display: {% if not account.PinCode %}flex{% else %}none{% endif %};"
+      class="confirm-choose-modal"
+    >
+      <div class="confirm-modal">
+        <div class="modal-header">
+          <div class="modal-title">
+            Vui lòng thiết lập mã pin cho tài khoản của bạn!
+          </div>
+        </div>
+        <div class="modal-body">
+          <a href="/account/chooose-pin-code" class="choose-now">Thiết lập</a>
+        </div>
+      </div>
+    </div>
     <!-- SIDEBAR -->
     <section id="sidebar">
       <a href="#" class="brand">
