@@ -480,3 +480,111 @@ def create_user_account():
         return redirect("/choose_account_number")
 
     return render_template("register.html")
+
+
+def dashboard():
+    total_transactions = Transaction.query.count()
+    total_customers = Customer.query.count()
+    total_money = db.session.query(db.func.sum(Account.Balance)).scalar()
+    total_money = total_money // 24000 if total_money else 0
+
+    latest_transactions = (
+        db.session.query(Transaction, Account.Username)
+        .join(Account, Transaction.senderAccountNumber == Account.AccountID)
+        .order_by(Transaction.TransactionDate.desc())
+        .limit(5)
+        .all()
+    )
+
+    return render_template(
+        "admin/admin.html",
+        total_transactions=total_transactions,
+        total_customers=total_customers,
+        total_money=total_money,
+        latest_transactions=latest_transactions,
+    )
+
+
+def retrieve_user():
+    page = request.args.get("page", 1, type=int)  # Default to page 1
+    per_page = 8  # 8 users per page
+
+    pagination = (
+        db.session.query(Customer)  # Lấy tất cả các trường từ bảng Customer
+        .join(Account, Customer.CustomerID == Account.CustomerID)
+        .add_columns(Account.Status)  # Thêm trường Status từ bảng Account
+        .paginate(page=page, per_page=per_page, error_out=False)
+    )
+    users = pagination.items
+
+    return render_template("admin/user/user.html", users=users, pagination=pagination)
+
+
+def update_user(customer_id):
+    customer = Customer.query.get(customer_id)
+
+    if not customer:
+        return "Khong tim thay khach hang", 404
+    if request.method == "POST":
+        # Lấy dữ liệu từ biểu mẫu để cập nhật
+        customer.FirstName = request.form["FirstName"]
+        customer.LastName = request.form["LastName"]
+        customer.DateOfBirth = request.form.get("DateOfBirth")
+        customer.Role = request.form["Role"]
+        customer.Email = request.form["Email"]
+        customer.PhoneNumber = request.form["PhoneNumber"]
+        customer.Address = request.form["Address"]
+        customer.City = request.form.get("City")
+        customer.Country = request.form.get("Country")
+        customer.Notes = request.form.get("Notes")
+
+        # Lưu thay đổi vào cơ sở dữ liệu
+        db.session.commit()
+        return redirect(url_for("admin.user_list"))
+
+    return render_template("admin/user/edit.html", user=customer)
+
+
+def locked_user(customer_id):
+    customer = Customer.query.get(customer_id)
+    if not customer:
+        return "Khong tim thay khach hang", 404
+    account = Account.query.filter_by(CustomerID=customer.CustomerID).first()
+    if not account:
+        return "Account not found", 404
+    # Cập nhật trạng thái tài khoản thành 'Locked'
+    account.Status = "Locked"
+    db.session.commit()
+    return redirect(url_for("admin.user_list"))
+
+
+def unlocked_user(customer_id):
+    customer = Customer.query.get(customer_id)
+    if not customer:
+        return "User not found", 404
+    account = Account.query.filter_by(CustomerID=customer.CustomerID).first()
+    if not account:
+        return "Account not found", 404
+
+    # Cập nhật trạng thái tài khoản thành 'Active'
+    account.Status = "Active"
+    db.session.commit()
+    return redirect(url_for("admin.user_list"))
+
+
+def get_transaction():
+    page = request.args.get("page", 1, type=int)  # Default to page 1
+    per_page = 6  # 6 transactions per page
+
+    pagination = (
+        db.session.query(Transaction)
+        .order_by(Transaction.TransactionDate.desc())  # Sort newest to oldest
+        .paginate(page=page, per_page=per_page, error_out=False)
+    )
+    transactions = pagination.items
+
+    return render_template(
+        "admin/transaction/transaction.html",
+        transactions=transactions,
+        pagination=pagination,
+    )

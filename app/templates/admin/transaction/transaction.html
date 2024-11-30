@@ -10,15 +10,15 @@
       rel="stylesheet"
     />
     <!-- My CSS -->
-    <link rel="stylesheet" href="../../../static/css/style.css" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}" />
     <link
       rel="shortcut icon"
-      href="../../../static/images/9703596.png"
+      href="{{url_for('static', filename='images/9703596.png')}}"
       type="image/x-icon"
     />
     <link
       rel="icon"
-      href="../../../static/images/9703596.png"
+      href="{{url_for('static', filename='images/9703596.png')}}"
       type="image/x-icon"
     />
 
@@ -61,7 +61,7 @@
       </ul>
       <ul class="side-menu">
         <li>
-          <a href="#" class="logout">
+          <a href="/login" class="logout">
             <i class="bx bxs-log-out-circle"></i>
             <span class="text">Đăng xuất</span>
           </a>
@@ -91,7 +91,7 @@
           <span class="num">8</span>
         </a>
         <a href="#" class="profile">
-          <img src="../../../static/images/images.jpg" />
+          <img src="{{url_for('static', filename='imagesimages.jpg/')}}" />
         </a>
       </nav>
       <!-- NAVBAR -->
@@ -122,77 +122,54 @@
             <table>
               <thead>
                 <tr>
-                  <th>Mã giao dịch</th>
-                  <th>Tài khoản gửi</th>
-                  <th>Tài khoản nhận</th>
+                  <th>Số tài khoản gửi</th>
+                  <th>Số tài khoản nhận</th>
                   <th>Trạng thái</th>
                   <th>Số tiền gửi</th>
                   <th>Ngày giao dịch</th>
                 </tr>
               </thead>
               <tbody>
+                {% for transaction in transactions %}
                 <tr>
-                  <td>
+                  <!-- <td>
                     <p>#1234</p>
-                  </td>
-                  <td>15001453432</td>
-                  <td>15015519999</td>
+                  </td> -->
+                  <td>{{ transaction.senderAccountNumber }}</td>
+                  <td>{{ transaction.recipientAccountNumber }}</td>
                   <td><span class="status success">Thành công</span></td>
-                  <td>5000000</td>
+                  <td>{{ '{:,.0f}'.format(transaction.Amount) }}</td>
                   <td>
-                    <span>12/11/2024</span>
+                    <span>{{ transaction.TransactionDate}}</span>
                   </td>
                 </tr>
-                <tr>
-                  <td>
-                    <p>#2113</p>
-                  </td>
-                  <td>15009999999</td>
-                  <td>1500345345</td>
-                  <td><span class="status error">Thất bại</span></td>
-                  <td>5000000</td>
-                  <td>
-                    <span>12/12/2024</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <p>#1311</p>
-                  </td>
-                  <td>15001453432</td>
-                  <td>15015519999</td>
-                  <td><span class="status success">Thành công</span></td>
-                  <td>5000000</td>
-                  <td>
-                    <span>12/11/2024</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <p>#1312</p>
-                  </td>
-                  <td>15001453432</td>
-                  <td>15015519999</td>
-                  <td><span class="status success">Thành công</span></td>
-                  <td>5000000</td>
-                  <td>
-                    <span>12/11/2024</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <p>#1313</p>
-                  </td>
-                  <td>15001453432</td>
-                  <td>15015519999</td>
-                  <td><span class="status success">Thành công</span></td>
-                  <td>5000000</td>
-                  <td>
-                    <span>12/11/2024</span>
-                  </td>
-                </tr>
+                {% endfor %}
               </tbody>
             </table>
+            <div class="container-pagination">
+              <div class="pagination">
+                {% if pagination.has_prev %}
+                <a class="pagi" href="{{ url_for('admin.transaction_list', page=pagination.prev_num) }}" style="margin-left: 10px;">Previous</a>
+                {% endif %}
+
+                {% for page_num in pagination.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num == pagination.page %}
+                            <strong style="margin-left: 10px;">{{ page_num }}</strong>
+                        {% else %}
+                            <a href="{{ url_for('admin.transaction_list', page=page_num) }}" style="margin-left: 10px;">{{ page_num }}</a>
+                        {% endif %}
+                    {% else %}
+                        <span>...</span>
+                    {% endif %}
+                {% endfor %}
+
+                {% if pagination.has_next %}
+                <a class="pagi" href="{{ url_for('admin.transaction_list', page=pagination.next_num) }}" style="margin-left: 10px;">Next</a>
+                {% endif %}
+              </div>
+            </div>
+            
           </div>
         </div>
       </main>
@@ -200,6 +177,6 @@
     </section>
     <!-- CONTENT -->
 
-    <script src="../../../static/js/script.js"></script>
+    <script src="{{url_for('static', filename='js/script.js')}}"></script>
   </body>
 </html>

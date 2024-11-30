@@ -1,5 +1,4 @@
 from app.services.account_service import (
-    retrieve_account,
     handle_create_account,
     locked_account,
     edit_account,
@@ -25,10 +24,6 @@ from app.services.account_service import (
 from flask import session, redirect, request, flash, render_template, url_for
 from datetime import date
 import uuid
-
-
-def retrieve_account():
-    return retrieve_account()
 
 
 def create_account():
@@ -206,3 +201,33 @@ def choose_pin_code():
             return render_template("choose_pin_code.html")
         return redirect(url_for("home.transfer_money"))
     return render_template("choose_pin_code.html")
+
+
+def retrieve_account():
+    from app.services.account_service import retrieving_account
+
+    return retrieving_account()
+
+
+def edit_account(account_id):
+    from app.services.account_service import edit_account
+
+    return edit_account(account_id)
+
+
+def locked_account(account_id):
+    from app.services.account_service import locked_account
+
+    return locked_account(account_id)
+
+
+def unlocked_account(account_id):
+    from app.services.account_service import unlocked_account
+
+    return unlocked_account(account_id)
+
+
+def recharge_account(account_id):
+    from app.services.account_service import recharge_account
+
+    return recharge_account(account_id)

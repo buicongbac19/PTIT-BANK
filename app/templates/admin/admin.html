@@ -10,15 +10,15 @@
       rel="stylesheet"
     />
     <!-- My CSS -->
-    <link rel="stylesheet" href="../../static/css/style.css" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}" />
     <link
       rel="shortcut icon"
-      href="../../static/images/9703596.png"
+      href="{{url_for('static', filename='images/9703596.png')}}"
       type="image/x-icon"
     />
     <link
       rel="icon"
-      href="../../static/images/9703596.png"
+      href="{{url_for('static', filename='images/9703596.png')}}"
       type="image/x-icon"
     />
 
@@ -62,7 +62,7 @@
       </ul>
       <ul class="side-menu">
         <li>
-          <a href="#" class="logout">
+          <a href="/login" class="logout">
             <i class="bx bxs-log-out-circle"></i>
             <span class="text">Đăng xuất</span>
           </a>
@@ -92,7 +92,7 @@
           <span class="num">8</span>
         </a>
         <a href="#" class="profile">
-          <img src="../../static/images/images.jpg" />
+          <img src="{{url_for('static', filename='images/images.jpg')}}" />
         </a>
       </nav>
       <!-- NAVBAR -->
@@ -119,21 +119,21 @@
             <i class="bx bx-line-chart"></i>
             <!-- <i class='bx bxs-calendar-check' ></i> -->
             <span class="text">
-              <h3>1020</h3>
+              <h3>{{ total_transactions}}</h3>
               <p>Giao dịch mới</p>
             </span>
           </li>
           <li>
             <i class="bx bxs-group"></i>
             <span class="text">
-              <h3>2834</h3>
+              <h3>{{ total_customers}}</h3>
               <p>Người sử dụng</p>
             </span>
           </li>
           <li>
             <i class="bx bxs-dollar-circle"></i>
             <span class="text">
-              <h3>$2543</h3>
+              <h3>${{total_money}}</h3>
               <p>Tổng số tiền giao dịch</p>
             </span>
           </li>
@@ -155,46 +155,17 @@
                 </tr>
               </thead>
               <tbody>
+                {% for transaction, username in latest_transactions %}
                 <tr>
                   <td>
-                    <img src="../../static/images/people.png" />
-                    <p>John Doe</p>
+                    <img src="{{url_for('static', filename='images/default-user.jpg')}}" />
+                    <p>{{ username }}</p>
                   </td>
-                  <td>01-10-2021</td>
+                  <td>{{ transaction.TransactionDate }}</td>
                   <td><span class="status success">Thành công</span></td>
                 </tr>
-                <tr>
-                  <td>
-                    <img src="../../static/images/people.png" />
-                    <p>John Doe</p>
-                  </td>
-                  <td>01-10-2021</td>
-                  <td><span class="status error">Lỗi giao dịch</span></td>
-                </tr>
-                <tr>
-                  <td>
-                    <img src="../../static/images/people.png" />
-                    <p>John Doe</p>
-                  </td>
-                  <td>01-10-2021</td>
-                  <td><span class="status process">Đang xử lý</span></td>
-                </tr>
-                <tr>
-                  <td>
-                    <img src="../../static/images/people.png" />
-                    <p>John Doe</p>
-                  </td>
-                  <td>01-10-2021</td>
-                  <td><span class="status success">Thành công</span></td>
-                </tr>
-                <tr>
-                  <td>
-                    <img src="../../static/images/people.png" />
-                    <p>John Doe</p>
-                  </td>
-                  <td>01-10-2021</td>
-                  <td><span class="status success">Thành công</span></td>
-                </tr>
+                {% endfor %}
+                
               </tbody>
             </table>
           </div>
@@ -204,6 +175,6 @@
     </section>
     <!-- CONTENT -->
 
-    <script src="../../static/js/script.js"></script>
+    <script src="{{url_for('static', filename='js/script.js')}}"></script>
   </body>
 </html>

@@ -2,6 +2,8 @@ import random
 import string
 import re
 import unicodedata
+from decimal import Decimal
+
 
 from flask import render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -14,11 +16,6 @@ from app.controllers.email_controller import send_verification_email
 
 def generate_account_id(id_length=8):
     return "".join(random.choices(string.digits, k=id_length))
-
-
-def retrieve_account():
-    accounts = Account.query.all()  # Lấy danh sách tất cả các tài khoản từ DB
-    return render_template("account_list.html", accounts=accounts)
 
 
 def is_strong_password(password):
@@ -408,3 +405,71 @@ def handle_choose_pin_code(pin_code):
     account.PinCode = pin_code
     db.session.commit()
     return "Thiết lập mã pin thành công!", "success"
+
+
+def retrieving_account():
+    page = request.args.get("page", 1, type=int)  # Default to page 1
+    per_page = 8  # 8 accounts per page
+
+    pagination = Account.query.paginate(page=page, per_page=per_page, error_out=False)
+    accounts = pagination.items
+
+    return render_template(
+        "admin/account/account.html", accounts=accounts, pagination=pagination
+    )
+
+
+def edit_account(account_id):
+    account = Account.query.get(account_id)  # Lấy thông tin tài khoản từ DB
+    if not account:
+        return "Account not found", 404
+
+    if request.method == "POST":
+        # Cập nhật các thuộc tính từ form
+        account.Username = request.form["Username"]
+        account.Password = request.form["Password"]
+        account.AccountType = request.form["AccountType"]
+        account.Balance = request.form["Balance"]
+        account.AccountType = request.form["AccountType"]
+        account.Status = request.form.get("Status", account.Status)
+        account.PinCode = request.form.get("PinCode", account.PinCode)
+        account.creditScored = request.form.get("creditScored", account.creditScored)
+
+        db.session.commit()  # Lưu thay đổi vào DB
+        return redirect(url_for("admin.account_list"))
+
+    return render_template("admin/account/edit.html", account=account)
+
+
+def locked_account(account_id):
+    account = Account.query.get(account_id)  # Lấy thông tin tài khoản từ DB
+    if not account:
+        return "Account not found", 404
+
+    account.Status = "Locked"
+    db.session.commit()  # Xóa tài khoản khỏi DB
+    return redirect(url_for("admin.account_list"))
+
+
+def unlocked_account(account_id):
+    account = Account.query.get(account_id)  # Lấy thông tin tài khoản từ DB
+    if not account:
+        return "Account not found", 404
+
+    account.Status = "Active"
+    db.session.commit()  # Xóa tài khoản khỏi DB
+    return redirect(url_for("admin.account_list"))
+
+
+def recharge_account(account_id):
+    account = Account.query.get(account_id)  # Lấy thông tin tài khoản từ DB
+    if not account:
+        return "Account not found", 404
+
+    if request.method == "POST":
+        amount = Decimal(request.form["amount"])
+        account.Balance += amount
+        db.session.commit()  # Lưu thay đổi vào DB
+        return redirect(url_for("admin.account_list"))
+
+    return render_template("admin/account/recharge.html", account=account)

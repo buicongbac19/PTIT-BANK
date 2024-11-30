@@ -10,15 +10,15 @@
       rel="stylesheet"
     />
     <!-- My CSS -->
-    <link rel="stylesheet" href="../../../static/css/style.css" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}" />
     <link
       rel="shortcut icon"
-      href="../../../static/images/9703596.png"
+      href="{{url_for('static', filename='images/9703596.png')}}"
       type="image/x-icon"
     />
     <link
       rel="icon"
-      href="../../../static/images/9703596.png"
+      href="{{url_for('static', filename='images/9703596.png')}}"
       type="image/x-icon"
     />
     <link
@@ -66,7 +66,7 @@
       </ul>
       <ul class="side-menu">
         <li>
-          <a href="#" class="logout">
+          <a href="/login" class="logout">
             <i class="bx bxs-log-out-circle"></i>
             <span class="text">Đăng xuất</span>
           </a>
@@ -96,7 +96,7 @@
           <span class="num">8</span>
         </a>
         <a href="#" class="profile">
-          <img src="../../../static/images/images.jpg" />
+          <img src="{{url_for('static', filename='images/images.jpg')}}" />
         </a>
       </nav>
       <!-- NAVBAR -->
@@ -116,9 +116,6 @@
               </li>
             </ul>
           </div>
-          <a href="/admin/user/create" class="btn-download">
-            <span class="text">Thêm mới</span>
-          </a>
         </div>
         <div class="table-data">
           <div class="order">
@@ -130,7 +127,6 @@
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Tên khách hàng</th>
                   <th>Email</th>
                   <th>Trạng thái</th>
@@ -138,115 +134,73 @@
                 </tr>
               </thead>
               <tbody>
+                {% for user, status in users%}
                 <tr>
+                  <td>{{user.FirstName + " " + user.LastName }}</td>
+                  <td>{{user.Email}}</td>
                   <td>
-                    <p>1</p>
+                    <span
+                      class="status {{'success' if status.lower() == 'active' else 'error'}}"
+                      >{{"Đang hoạt động" if status.lower() == 'active' else
+                      "Đang bị khóa" }}</span
+                    >
                   </td>
-                  <td>Nguyễn Văn A</td>
-                  <td>Test@gmail.com</td>
-                  <td><span class="status success">Đang hoạt động</span></td>
                   <td>
-                    <a href="/admin/user/edit"
+                    <a href="/admin/user/edit/{{ user.CustomerID }}"
                       ><span class="text-nomal"
                         ><i class="bx bx-pencil"></i>Sửa</span
                       ></a
                     >
-                    |
-                    <a href="#" onclick="confirmLockUser(event)"
+                    | {% if status.lower() == "active"%}
+                    <a
+                      href="#"
+                      onclick="confirmLockUser(event, '{{ user.CustomerID }}')"
                       ><span class="text-danger"
                         ><i class="bx bxs-lock"></i>Khóa</span
                       ></a
                     >
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <p>2</p>
-                  </td>
-                  <td>Nguyễn Văn B</td>
-                  <td>Test1@gmail.com</td>
-                  <td><span class="status error">Đang bị khóa</span></td>
-                  <td>
-                    <a href="/admin/user/edit"
-                      ><span class="text-nomal"
-                        ><i class="bx bx-pencil"></i>Sửa</span
-                      ></a
-                    >
-                    |
-                    <a href="#"
+                    {% else %}
+                    <a href="/admin/user/unlock/{{ user.CustomerID }}"
                       ><span class="text-blue"
                         ><i class="bx bxs-lock-open"></i>Bỏ khóa</span
                       ></a
                     >
+                    {% endif%}
                   </td>
                 </tr>
-                <tr>
-                  <td>
-                    <p>3</p>
-                  </td>
-                  <td>Nguyễn Văn C</td>
-                  <td>Test2@gmail.com</td>
-                  <td><span class="status success">Đang hoạt động</span></td>
-                  <td>
-                    <a href="/admin/user/edit"
-                      ><span class="text-nomal"
-                        ><i class="bx bx-pencil"></i>Sửa</span
-                      ></a
-                    >
-                    |
-                    <a href="#" onclick="confirmLockUser(event)"
-                      ><span class="text-danger"
-                        ><i class="bx bxs-lock"></i>Khóa</span
-                      ></a
-                    >
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <p>4</p>
-                  </td>
-                  <td>Nguyễn Văn D</td>
-                  <td>Test3@gmail.com</td>
-                  <td><span class="status success">Đang hoạt động</span></td>
-                  <td>
-                    <a href="/admin/user/edit"
-                      ><span class="text-nomal"
-                        ><i class="bx bx-pencil"></i>Sửa</span
-                      ></a
-                    >
-                    |
-                    <a href="#" onclick="confirmLockUser(event)"
-                      ><span class="text-danger"
-                        ><i class="bx bxs-lock"></i>Khóa</span
-                      ></a
-                    >
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <p>5</p>
-                  </td>
-                  <td>Nguyễn Văn E</td>
-                  <td>Test4@gmail.com</td>
-                  <td><span class="status error">Đang bị khóa</span></td>
-                  <td>
-                    <a href="/admin/user/edit"
-                      ><span class="text-nomal"
-                        ><i class="bx bx-pencil"></i>Sửa</span
-                      ></a
-                    >
-                    |
-                    <a href="#"
-                      ><span class="text-blue"
-                        ><i class="bx bxs-lock-open"></i>Bỏ khóa</span
-                      ></a
-                    >
-                  </td>
-                </tr>
+                {% endfor %}
               </tbody>
             </table>
+            <div class="container-pagination">
+              <div class="pagination">
+                {% if pagination.has_prev %}
+                <a
+                  class="pagi"
+                  href="{{ url_for('admin.user_list', page=pagination.prev_num) }}"
+                  style="margin-left: 10px"
+                  >Previous</a
+                >
+                {% endif %} {% for page_num in pagination.iter_pages() %} {% if
+                page_num %} {% if page_num == pagination.page %}
+                <strong style="margin-left: 10px">{{ page_num }}</strong>
+                {% else %}
+                <a
+                  href="{{ url_for('admin.user_list', page=page_num) }}"
+                  style="margin-left: 10px"
+                  >{{ page_num }}</a
+                >
+                {% endif %} {% else %}
+                <span>...</span>
+                {% endif %} {% endfor %} {% if pagination.has_next %}
+                <a
+                  class="pagi"
+                  href="{{ url_for('admin.user_list', page=pagination.next_num) }}"
+                  style="margin-left: 10px"
+                  >Next</a
+                >
+                {% endif %}
+              </div>
+            </div>
           </div>
         </div>
       </main>
@@ -254,6 +208,6 @@
     </section>
     <!-- CONTENT -->
 
-    <script src="../../../static/js/script.js"></script>
+    <script src="{{url_for('static', filename='js/script.js')}}"></script>
   </body>
 </html>

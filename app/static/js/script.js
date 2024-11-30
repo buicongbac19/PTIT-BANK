@@ -68,7 +68,7 @@ switchMode.addEventListener("change", function () {
 
 // popup
 
-function confirmLockAccount(event) {
+function confirmLockAccount(event, accountId) {
   // Nội dung của hàm confirmLockAccount
   event.preventDefault(); // Ngăn chặn hành động mặc định của liên kết
   Swal.fire({
@@ -83,12 +83,12 @@ function confirmLockAccount(event) {
   }).then((result) => {
     if (result.isConfirmed) {
       // Thực hiện hành động khóa tài khoản
-      window.location.href = "/path/to/lock/account"; // Thay đổi đường dẫn này thành đường dẫn thực tế
+      window.location.href = `/admin/account/lock/${accountId}`; // Thay đổi đường dẫn này thành đường dẫn thực tế
     }
   });
 }
 
-function confirmLockUser(event) {
+function confirmLockUser(event, userId) {
   // Nội dung của hàm confirmLockUser
   event.preventDefault(); // Ngăn chặn hành động mặc định của liên kết
   Swal.fire({
@@ -103,7 +103,7 @@ function confirmLockUser(event) {
   }).then((result) => {
     if (result.isConfirmed) {
       // Thực hiện hành động khóa người dùng
-      window.location.href = "/path/to/lock/user"; // Thay đổi đường dẫn này thành đường dẫn thực tế
+      window.location.href = "/admin/user/lock/" + userId; // Thay đổi đường dẫn này thành đường dẫn thực tế
     }
   });
 }

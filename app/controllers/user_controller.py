@@ -109,3 +109,39 @@ def handle_withdraw_request():
 
 def register_user():
     create_user_account()
+
+
+def dashboard():
+    from app.services.user_service import dashboard
+
+    return dashboard()
+
+
+def retrieve_user():
+    from app.services.user_service import retrieve_user
+
+    return retrieve_user()
+
+
+def update_user(customer_id):
+    from app.services.user_service import update_user
+
+    return update_user(customer_id)
+
+
+def locked_user(customer_id):
+    from app.services.user_service import locked_user
+
+    return locked_user(customer_id)
+
+
+def unlocked_user(customer_id):
+    from app.services.user_service import unlocked_user
+
+    return unlocked_user(customer_id)
+
+
+def get_transaction():
+    from app.services.user_service import get_transaction
+
+    return get_transaction()

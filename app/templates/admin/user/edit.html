@@ -11,15 +11,15 @@
     />
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"> -->
     <!-- My CSS -->
-    <link rel="stylesheet" href="../../../static/css/style.css" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}" />
     <link
       rel="shortcut icon"
-      href="../../../static/images/9703596.png"
+      href="{{url_for('static', filename='images/9703596.png')}}"
       type="image/x-icon"
     />
     <link
       rel="icon"
-      href="../../../static/images/9703596.png"
+      href="{{url_for('static', filename='images/9703596.png')}}"
       type="image/x-icon"
     />
 
@@ -62,7 +62,7 @@
       </ul>
       <ul class="side-menu">
         <li>
-          <a href="#" class="logout">
+          <a href="/login" class="logout">
             <i class="bx bxs-log-out-circle"></i>
             <span class="text">Đăng xuất</span>
           </a>
@@ -92,7 +92,7 @@
           <span class="num">8</span>
         </a>
         <a href="#" class="profile">
-          <img src="../../../static/images/images.jpg" />
+          <img src="{{url_for('static', filename='images/images.jpg')}}" />
         </a>
       </nav>
       <!-- NAVBAR -->
@@ -126,30 +126,30 @@
             <div class="form-container">
               <section class="container">
                 <header>Sửa thông tin người dùng</header>
-                <form action="#" class="form">
+                <form action="/admin/user/edit/{{ user.CustomerID }}" method="post" class="form">
                   <div class="column">
                     <div class="input-box">
                       <label>Họ và tên đệm</label>
-                      <input type="text" value="Nguyễn Văn " required />
+                      <input type="text" value="{{ user.FirstName}}" name="FirstName" required />
                     </div>
                     <div class="input-box">
                       <label>Tên</label>
-                      <input type="text" value="A" />
+                      <input type="text" value="{{ user.LastName }}" name="LastName" required/>
                     </div>
                   </div>
 
                   <div class="input-box">
                     <label>Email</label>
-                    <input type="text" value="Test@gmail.com" required />
+                    <input type="text" value="{{user.Email}}" name="Email" required />
                   </div>
                   <div class="column">
                     <div class="input-box">
                       <label>Số điện thoại</label>
-                      <input type="tel" value="0987654321" required />
+                      <input type="tel" value="{{ user.PhoneNumber}}" name="PhoneNumber" required />
                     </div>
                     <div class="input-box">
                       <label>Ngày sinh</label>
-                      <input type="date" value="03/03/2000" required />
+                      <input type="date" value="{{ user.DateOfBirth}}" required />
                     </div>
                   </div>
                   <div class="gender-box">
@@ -178,16 +178,17 @@
                     <label>Địa chỉ</label>
                     <input
                       type="text"
-                      value="Số 99, Đường Trần Thánh Tông, Phường Phạm Đình Hổ, Quận Hoàn Kiếm, Hà Nội"
+                      value="{{ user.Address}}"
                       required
+                      name="Address"
                     />
                   </div>
                   <div class="input-box">
                     <label>Vai trò</label>
                     <div class="select-box">
-                      <select>
-                        <option selected>Người dùng</option>
-                        <option>Admin</option>
+                      <select name="Role">
+                        <option {{'selected' if user.Role.lower() == 'customer' or user.Role.lower() == 'user' else ''}}>Người dùng</option>
+                        <option {{'selected' if user.Role.lower() == 'admin' else ''}}>Admin</option>
                       </select>
                     </div>
                   </div>
@@ -202,6 +203,6 @@
     </section>
     <!-- CONTENT -->
 
-    <script src="../../../static/js/script.js"></script>
+    <script src="{{url_for('static', filename='js/script.js')}}"></script>
   </body>
 </html>
