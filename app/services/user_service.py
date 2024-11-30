@@ -10,7 +10,6 @@ from flask import (
     redirect,
     url_for,
     flash,
-    render_template_string,
     session,
 )
 
@@ -90,55 +89,6 @@ def change_status_account(customer_id):
         flash("Không tìm thấy tài khoản.")
 
     # Quay lại trang quản lý khách hàng sau khi cập nhật
-    return redirect(url_for("user_list"))
-
-
-def update_user(customer_id):
-    customer = Customer.query.get(customer_id)
-
-    if not customer:
-        return "Khong tim thay khach hang", 404
-    # Lấy dữ liệu từ biểu mẫu để cập nhật
-    customer.FirstName = request.form["FirstName"]
-    customer.LastName = request.form["LastName"]
-    customer.DateOfBirth = request.form.get("DateOfBirth")
-    customer.Role = request.form["Role"]
-    customer.Email = request.form["Email"]
-    customer.PhoneNumber = request.form["PhoneNumber"]
-    customer.Address = request.form.get("Address")
-    customer.City = request.form.get("City")
-    customer.Country = request.form.get("Country")
-    customer.Notes = request.form.get("Notes")
-
-    # Lưu thay đổi vào cơ sở dữ liệu
-    db.session.commit()
-    return redirect(url_for("user_list"))
-
-
-def locked_user(customer_id):
-    customer = Customer.query.get(customer_id)
-    if not customer:
-        return "Khong tim thay khach hang", 404
-    account = Account.query.filter_by(AccountID=customer.CustomerID).first()
-    if not account:
-        return "Account not found", 404
-    # Cập nhật trạng thái tài khoản thành 'Locked'
-    account.Status = "Locked"
-    db.session.commit()
-    return redirect(url_for("user_list"))
-
-
-def unlocked_user(customer_id):
-    customer = Customer.query.get(customer_id)
-    if not customer:
-        return "User not found", 404
-    account = Account.query.filter_by(AccountID=customer.CustomerID).first()
-    if not account:
-        return "Account not found", 404
-
-    # Cập nhật trạng thái tài khoản thành 'Active'
-    account.Status = "Active"
-    db.session.commit()
     return redirect(url_for("user_list"))
 
 

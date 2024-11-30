@@ -53,24 +53,6 @@ def handle_create_account(data):
         return f"An error occurred: {str(e)}", "danger"
 
 
-def edit_account(account_id):
-    account = Account.query.get(account_id)  # Lấy thông tin tài khoản từ DB
-    if not account:
-        return "Account not found", 404
-
-    if request.method == "POST":
-        # Cập nhật các thuộc tính từ form
-        account.Email = request.form["Email"]
-        account.AccountType = request.form.get("AccountType", account.AccountType)
-        account.Balance = request.form.get("Balance", account.Balance)
-        account.Status = request.form.get("Status", account.Status)
-        account.PinCode = request.form.get("PinCode", account.PinCode)
-        account.creditScored = request.form.get("creditScored", account.creditScored)
-
-        db.session.commit()  # Lưu thay đổi vào DB
-        return redirect(url_for("account_list"))
-
-
 def get_detail_account(account_id):
     if not account_id:
         return "Bạn chưa đăng nhập", "danger", [None, None]
@@ -81,26 +63,6 @@ def get_detail_account(account_id):
         return "Tài khoản không tồn tại", "danger", [None, None]
     customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
     return "", "success", [account, customer]
-
-
-def locked_account(account_id):
-    account = Account.query.get(account_id)  # Lấy thông tin tài khoản từ DB
-    if not account:
-        return "Account not found", 404
-
-    account.Status = "Locked"
-    db.session.commit()  # Xóa tài khoản khỏi DB
-    return redirect(url_for("account_list"))
-
-
-def unlocked_account(account_id):
-    account = Account.query.get(account_id)  # Lấy thông tin tài khoản từ DB
-    if not account:
-        return "Account not found", 404
-
-    account.Status = "Active"
-    db.session.commit()  # Xóa tài khoản khỏi DB
-    return redirect(url_for("account_list"))
 
 
 def search_account():
