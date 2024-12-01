@@ -238,12 +238,19 @@ def check_role():
     account_id = session.get("account_id")
     if not account_id:
         return "Bạn chưa đăng nhập", "danger"
+    
     account = Account.query.filter_by(AccountID=account_id).first()
     if not account:
         return "Tài khoản không tồn tại", "danger"
+    
     customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
+    if not customer:
+        return "Khách hàng không tồn tại", "danger"
+    
     if customer.Role != "Admin":
         return "Bạn không có quyền truy cập trang này", "danger"
+    
+    return "Welcome Admin", "success"
 
 
 def dashboard():
@@ -258,8 +265,8 @@ def dashboard():
 
     latest_transactions = (
         db.session.query(Transaction, Account.Username)
-        .join(Account, Transaction.senderAccountNumber == Account.AccountID)
-        .order_by(Transaction.TransactionDate.desc())
+        .join(Account, Transaction.senderAccountNumber == Account.accountNumber)
+        .order_by(Transaction.TransactionDate.desc())  
         .limit(5)
         .all()
     )

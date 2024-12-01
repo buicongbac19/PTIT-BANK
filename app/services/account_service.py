@@ -379,12 +379,19 @@ def check_role():
     account_id = session.get("account_id")
     if not account_id:
         return "Bạn chưa đăng nhập", "danger"
+    
     account = Account.query.filter_by(AccountID=account_id).first()
     if not account:
         return "Tài khoản không tồn tại", "danger"
+    
     customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
+    if not customer:
+        return "Khách hàng không tồn tại", "danger"
+    
     if customer.Role != "Admin":
         return "Bạn không có quyền truy cập trang này", "danger"
+    
+    return "Welcome Admin", "success"
 
 
 def retrieving_account():
@@ -462,12 +469,13 @@ def recharge_account(account_id):
     if category == "danger":
         flash(message, category)
         return redirect(url_for("auth.login"))
+    
     account = Account.query.get(account_id)  # Lấy thông tin tài khoản từ DB
     if not account:
         return "Account not found", 404
 
     if request.method == "POST":
-        amount = Decimal(request.form["amount"])
+        amount = float(request.form["amount"])  # Chuyển đổi Decimal thành float
         account.Balance += amount
         db.session.commit()  # Lưu thay đổi vào DB
         return redirect(url_for("admin.account_list"))

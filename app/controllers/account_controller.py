@@ -118,16 +118,21 @@ def reset_password():
 
 
 def send_change_email_pin():
+    from app.services.account_service import get_detail_account
+
+    account_id = session.get("account_id")
+    message, category, [account, customer] = get_detail_account(account_id)
     if request.method == "POST":
         email = request.form["email"]
         message, category = handle_send_change_email_pin(email)
         if category == "danger":
             flash(message, category)
             return redirect(url_for("auth.login"))
-    return render_template("change_email.html")
+    return render_template("change_email.html", customer=customer)
 
 
 def change_email():
+
     if request.method == "POST":
         new_email = request.form["new_email"]
         pin_code = request.form["verification_code"]
@@ -141,6 +146,7 @@ def change_email():
 
 
 def send_change_password_pin():
+    
     if request.method == "POST":
         email = request.form["email"]
         message, category = handle_send_change_password_pin(email)
