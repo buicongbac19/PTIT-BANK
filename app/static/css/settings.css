@@ -60,8 +60,19 @@ input {
   padding: 4px 0;
 }
 
+.logo {
+  background-image: url("../images/PTITBANK.png");
+  background-size: contain;
+  width: 40px;
+  height: 40px;
+  background-position: center center;
+  background-repeat: no-repeat;
+  margin: 0 20px;
+}
+
 /* SIDEBAR */
 #sidebar {
+  padding-top: 10px;
   position: fixed;
   top: 0;
   left: 0;
@@ -89,7 +100,7 @@ input {
   height: 56px;
   display: flex;
   align-items: center;
-  color: var(--blue);
+  color: rgb(237, 28, 36);
   position: sticky;
   top: 0;
   left: 0;
@@ -342,7 +353,7 @@ input {
 }
 
 .main-account .left-content {
-  background-image: url("../images/MB.png");
+  background-image: url("../images/PTITBANK.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: contain;
@@ -601,7 +612,7 @@ input {
 }
 
 .logo-bank {
-  background-image: url("../images/MB.png");
+  background-image: url("../images/PTITBANK.png");
   width: 24px;
   height: 24px;
   background-position: center center;
@@ -770,6 +781,19 @@ input {
 .my-info-confirm:hover {
   background-color: #fff;
   color: #141ed2;
+}
+
+.logout {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  margin-left: 6px;
+  cursor: pointer;
+}
+
+.logout:hover {
+  color: red;
 }
 
 /* MAIN */

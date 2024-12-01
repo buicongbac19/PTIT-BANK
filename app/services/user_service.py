@@ -13,10 +13,6 @@ from flask import (
     session,
 )
 
-from app.controllers.email_controller import (
-    send_transaction_email,
-    send_withdraw_transaction_email,
-)
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from datetime import datetime
@@ -107,63 +103,6 @@ def search_user():
         return "<h3>Không tìm thấy khách hàng với thông tin đã nhập.</h3>", 404
 
 
-def process_transfer():
-    if request.method == "POST":
-        pin = request.form["pin"]
-        account_id = session.get("account_id")
-        account = Account.query.get(account_id)
-        # Kiểm tra mã PIN
-        if not check_password_hash(account.PinCode, pin):
-            flash("Mã pin không chính xác")
-            return render_template("enter_pin.html")
-
-            # Lấy thông tin người nhận
-        recipient_account_number = session.get("recipient_account")
-        recipient_account = Account.query.filter_by(
-            accountNumber=recipient_account_number
-        ).first()
-        amount = Decimal((session.get("amount")))
-        points_earned = int(amount // 1000)
-        account.creditScore += points_earned
-
-        # Tạo giao dịch
-        transaction = Transaction(
-            TransactionID=str(uuid.uuid4()),  # Tạo mã giao dịch duy nhất
-            senderAccountNumber=account.accountNumber,
-            recipientAccountNumber=recipient_account.accountNumber,
-            TransactionDate=datetime.now(),
-            TransactionType="Chuyển khoản nhanh",  # Chuyển khoản
-            Amount=amount,
-            Description=session.get("content"),
-        )
-        # Lưu giao dịch vào database
-        db.session.add(transaction)
-
-        # Cập nhật số dư tài khoản
-
-        account.Balance -= amount
-        recipient_account.Balance += amount
-        db.session.commit()
-        recipient_name = f"{recipient_account.customer.FirstName} {recipient_account.customer.LastName}"
-        # Lấy thông tin chi tiết giao dịch để gửi email
-        transaction_details = {
-            "recipient_name": recipient_name,  # Tên người nhận từ bảng Customer
-            "recipient_account": recipient_account.accountNumber,
-            "amount": amount,
-            "content": session.get("content"),
-            "transaction_date": transaction.TransactionDate.strftime(
-                "%Y-%m-%d %H:%M:%S"
-            ),
-        }
-
-        # Gửi email thông báo giao dịch
-        send_transaction_email(account.Email, transaction_details)
-        flash("Chuyển khoản thành công và email thông báo đã được gửi.", "success")
-        return render_template("receipt.html", transaction=transaction_details)
-
-    return render_template("enter_pin.html")
-
-
 # Kiểm tra và khởi tạo chuyển khoản
 def initiate_transfer():
     if request.method == "POST":
@@ -241,60 +180,6 @@ def query_transaction():
     return render_template("transaction_history.html", transactions=transactions)
 
 
-def process_withdrawal():
-    if request.method == "POST":
-        data = request.form  # Sử dụng request.form để nhận dữ liệu từ form POST
-        pin = data.get("pin")
-        amount = data.get("amount")
-        account_id = session.get("account_id")
-        if not account_id or not pin or not amount:
-            return "Vui long nhập đủ thông tin", 400
-        account = Account.query.get(account_id)
-        # Kiểm tra mã PIN
-        if not check_password_hash(account.PinCode, pin):
-            flash("Mã pin không chính xác")
-            return redirect(url_for("withdraw"))
-
-        # Kiểm tra số dư tài khoản và số tiền rút
-        amount = Decimal(amount)
-        if amount < 100000:
-            return {"success": False, "message": "Số tiền rút phải từ 100,000 VND."}
-        if account.Balance >= amount:
-            # Tạo bản ghi giao dịch
-            transaction = Transaction(
-                TransactionID=str(uuid.uuid4()),
-                senderAccountNumber=account.accountNumber,
-                recipientAccountNumber=None,
-                TransactionDate=datetime.now(),
-                TransactionType="Rút tiền",
-                Amount=amount,
-                Description="Rút tiền từ tài khoản",
-            )
-
-            # Lưu giao dịch và cập nhật số dư
-            db.session.add(transaction)
-            account.Balance -= amount
-            db.session.commit()
-            withdraw_name = f"{account.customer.FirstName} {account.customer.LastName}"
-            transaction_details = {
-                "withdrawer": withdraw_name,  # Tên người nhận từ bảng Customer
-                "withdraw_account": account.accountNumber,
-                "amount": amount,
-                "transaction_date": transaction.TransactionDate.strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                ),
-            }
-            send_withdraw_transaction_email(account.Email, transaction_details)
-
-            flash("Rút tiền thành công! Vui lòng kiểm tra email")
-            return render_template("receip_withdraw")
-        else:
-            flash("Số dư không đủ để rút!")
-            return redirect(url_for("withdraw"))
-
-    return render_template("withdraw.html")
-
-
 def handle_login(username, password):
 
     account = Account.query.filter_by(Username=username).first()
@@ -347,92 +232,23 @@ def is_valid_phone_number(phone_number):
     return re.match(phone_regex, phone_number) is not None
 
 
-def create_user_account():
-    if request.method == "POST":
-        data = {
-            "username": request.form["username"],
-            "password": request.form["password"],
-            "confirm_password": request.form["confirm_password"],
-            "email": request.form["email"],
-            "phone_number": request.form["phoneNumber"],
-            "first_name": request.form["firstName"],
-            "last_name": request.form["lastName"],
-            "date_of_birth": datetime.strptime(
-                request.form["dateOfBirth"], "%Y-%m-%d"
-            ).date(),
-            "address": request.form["address"],
-            "city": request.form["city"],
-            "country": request.form["country"],
-        }
-        # Kiểm tra định dạng email hợp lệ
-        if not is_valid_email(data["email"]):
-            flash("Email không hợp lệ!", "danger")
-            return redirect(url_for("register"))  # Quay lại trang đăng ký
-
-        # Kiểm tra username không có khoảng trắng
-        if not is_valid_username(data["username"]):
-            flash("Tên đăng nhập không hợp lệ!", "danger")
-            return redirect(url_for("register"))
-
-        # Kiểm tra số điện thoại hợp lệ
-        if not is_valid_phone_number(data["phone_number"]):
-            flash("Số điện thoại không hợp lệ!", "danger")
-            return redirect(url_for("register"))
-        # Kiểm tra username và email có tồn tại không
-        existing_account = Account.query.filter_by(Username=data["username"]).first()
-        existing_customer = Customer.query.filter_by(Email=data["email"]).first()
-        if existing_account:
-            return False, "Tài khoản đã tồn tại!"
-        elif existing_customer:
-            return False, "Email đã tồn tại!"
-
-        # Mã hóa mật khẩu
-        hashed_password = generate_password_hash(data["password"])
-
-        # Tạo bản ghi Customer và Account
-        new_customer = Customer(
-            CustomerID=str(uuid.uuid4()),
-            FirstName=data["first_name"],
-            LastName=data["last_name"],
-            DateOfBirth=data["date_of_birth"],
-            Role="User",
-            Email=data["email"],
-            PhoneNumber=data["phone_number"],
-            Address=data["address"],
-            City=data["city"],
-            Country=data["country"],
-        )
-
-        new_account = Account(
-            AccountID=str(uuid.uuid4()),
-            CustomerID=new_customer.CustomerID,
-            Username=data["username"],
-            Password=hashed_password,
-            Email=data["email"],
-            AccountType="savings",
-            creditScored=0,
-            DateOpened=datetime.date.today(),
-            Status="Active",
-        )
-
-        # Thêm vào cơ sở dữ liệu
-        db.session.add(new_customer)
-        db.session.add(new_account)
-        db.session.commit()
-        session["new_account"] = {
-            "AccountID": new_account.AccountID,
-            "CustomerID": new_customer.CustomerID,
-            "Username": new_account.Username,
-            "Email": new_account.Email,
-            "PhoneNumber": new_customer.PhoneNumber,
-        }
-        flash("Đăng ký thành công!")
-        return redirect("/choose_account_number")
-
-    return render_template("register.html")
+def check_role():
+    account_id = session.get("account_id")
+    if not account_id:
+        return "Bạn chưa đăng nhập", "danger"
+    account = Account.query.filter_by(AccountID=account_id).first()
+    if not account:
+        return "Tài khoản không tồn tại", "danger"
+    customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
+    if customer.Role != "Admin":
+        return "Bạn không có quyền truy cập trang này", "danger"
 
 
 def dashboard():
+    message, category = check_role()
+    if category == "danger":
+        flash(message, category)
+        return redirect(url_for("auth.login"))
     total_transactions = Transaction.query.count()
     total_customers = Customer.query.count()
     total_money = db.session.query(db.func.sum(Account.Balance)).scalar()
@@ -456,6 +272,10 @@ def dashboard():
 
 
 def retrieve_user():
+    message, category = check_role()
+    if category == "danger":
+        flash(message, category)
+        return redirect(url_for("auth.login"))
     page = request.args.get("page", 1, type=int)  # Default to page 1
     per_page = 8  # 8 users per page
 
@@ -471,6 +291,10 @@ def retrieve_user():
 
 
 def update_user(customer_id):
+    message, category = check_role()
+    if category == "danger":
+        flash(message, category)
+        return redirect(url_for("auth.login"))
     customer = Customer.query.get(customer_id)
 
     if not customer:
@@ -496,6 +320,10 @@ def update_user(customer_id):
 
 
 def locked_user(customer_id):
+    message, category = check_role()
+    if category == "danger":
+        flash(message, category)
+        return redirect(url_for("auth.login"))
     customer = Customer.query.get(customer_id)
     if not customer:
         return "Khong tim thay khach hang", 404
@@ -509,6 +337,10 @@ def locked_user(customer_id):
 
 
 def unlocked_user(customer_id):
+    message, category = check_role()
+    if category == "danger":
+        flash(message, category)
+        return redirect(url_for("auth.login"))
     customer = Customer.query.get(customer_id)
     if not customer:
         return "User not found", 404
@@ -523,6 +355,10 @@ def unlocked_user(customer_id):
 
 
 def get_transaction():
+    message, category = check_role()
+    if category == "danger":
+        flash(message, category)
+        return redirect(url_for("auth.login"))
     page = request.args.get("page", 1, type=int)  # Default to page 1
     per_page = 6  # 6 transactions per page
 

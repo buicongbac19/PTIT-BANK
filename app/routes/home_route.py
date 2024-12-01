@@ -7,13 +7,15 @@ home_bp = Blueprint("home", __name__)
 @home_bp.route("/")
 def home():
     from app.services.account_service import get_detail_account
+    from app.services.account_service import get_latest_transactions
 
     account_id = session.get("account_id")
     message, category, [account, customer] = get_detail_account(account_id)
     if category == "danger":
         flash(message, category)
         return redirect(url_for("auth.login"))
-    return render_template("home.html", account=account)
+    transactions = get_latest_transactions(account_id)
+    return render_template("home.html", account=account, transactions=transactions)
 
 
 @home_bp.route("/account/profile")
@@ -31,13 +33,15 @@ def profile():
 
 @home_bp.route("/account/transfer-money")
 def transfer_money():
-    from app.services.account_service import get_detail_account
+    from app.services.account_service import get_detail_account, remove_accents
 
     account_id = session.get("account_id")
     message, category, [account, customer] = get_detail_account(account_id)
     if category == "danger":
         flash(message, category)
         return redirect(url_for("auth.login"))
+    customer.FirstName = remove_accents(customer.FirstName.upper())
+    customer.LastName = remove_accents(customer.LastName.upper())
     return render_template("transfer_money.html", account=account, customer=customer)
 
 
@@ -114,3 +118,45 @@ def choose_pin_code():
     from app.controllers.account_controller import choose_pin_code
 
     return choose_pin_code()
+
+
+@home_bp.route("/api/get-account-by-account-number", methods=["GET"])
+def get_account_by_account_number():
+    from app.controllers.account_controller import get_account_by_account_number
+
+    return get_account_by_account_number()
+
+
+@home_bp.route("/account/transfer-money/confirm-receiver-info", methods=["GET", "POST"])
+def confirm_receiver_info():
+    from app.controllers.account_controller import confirm_receiver_info
+
+    return confirm_receiver_info()
+
+
+@home_bp.route(
+    "/account/transfer-money/confirm-transfer-information", methods=["POST", "GET"]
+)
+def confirm_transfer_information():
+    from app.controllers.account_controller import confirm_transfer_info
+
+    return confirm_transfer_info()
+
+
+@home_bp.route("/account/transfer-money/confirm-pin-code", methods=["GET", "POST"])
+def confirm_pin_code():
+    from app.controllers.account_controller import confirm_pin_code
+
+    return confirm_pin_code()
+
+
+@home_bp.route("/account/transfer_money/success", methods=["GET", "POST"])
+def transfer_success():
+    return render_template("transfer_success.html")
+
+
+@home_bp.route("/account/get-transaction", methods=["POST", "GET"])
+def get_transaction():
+    from app.services.account_service import get_transaction
+
+    return get_transaction()

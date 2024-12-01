@@ -3,6 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', filename='images/PTITBANK.png') }}"
+    />
+
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', filename='images/PTITBANK.png') }}"
+    />
 
     <!-- Boxicons -->
     <link
@@ -32,9 +43,9 @@
   <body>
     <!-- SIDEBAR -->
     <section id="sidebar">
-      <a href="#" class="brand">
-        <i class="bx bxs-smile"></i>
-        <span class="text">AdminHub</span>
+      <a href="/" class="brand">
+        <div class="logo"></div>
+        <span class="text">PTITBANK</span>
       </a>
       <ul class="side-menu top">
         <li>
@@ -67,12 +78,14 @@
             <span class="text">Cài đặt</span>
           </a>
         </li>
-        <li>
-          <a href="/login" class="logout">
-            <i class="bx bxs-log-out-circle"></i>
-            <span class="text">Đăng xuất</span>
-          </a>
-        </li>
+        <form action="{{ url_for('auth.logout') }}" method="POST">
+          <li>
+            <button type="submit" class="logout">
+              <i class="bx bxs-log-out-circle"></i>
+              <span class="text">Đăng xuất</span>
+            </button>
+          </li>
+        </form>
       </ul>
     </section>
     <!-- SIDEBAR -->
@@ -84,7 +97,7 @@
         <i class="bx bx-menu"></i>
         <a href="#" class="nav-link">Danh mục</a>
         <a href="/account/profile" class="profile">
-          <img src="../static/images/people.png" />
+          <img src="../static/images/avatar_user.png" />
         </a>
       </nav>
       <!-- NAVBAR -->

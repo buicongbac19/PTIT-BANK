@@ -16,24 +16,12 @@
       rel="stylesheet"
     />
     <!-- My CSS -->
-    <link rel="stylesheet" href="../static/css/change_email.css" />
-
     <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
       rel="stylesheet"
+      href="{{ url_for('static', filename='css/transfer_success.css') }}"
     />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
-    <title>Chọn số tài khoản</title>
-    <style>
-      .error-message .danger {
-        color: red;
-      }
-
-      .error-message .success {
-        color: green;
-      }
-    </style>
+    <title>Chuyển tiền</title>
   </head>
   <body>
     <!-- SIDEBAR -->
@@ -55,8 +43,8 @@
             <span class="text">Thông tin tài khoản</span>
           </a>
         </li>
-        <li>
-          <a href="/account/transfer-money">
+        <li class="active">
+          <a href="#">
             <i class="bx bx-transfer"></i>
             <span class="text">Chuyển tiền</span>
           </a>
@@ -101,35 +89,36 @@
       <main>
         <div class="head-title">
           <div class="left">
-            <h1>Chọn số tài khoản</h1>
+            <h1>Chuyển tiền</h1>
             <ul class="breadcrumb">
               <li>
-                <a href="#">Chọn số tài khoản</a>
+                <a href="#">Chuyển tiền</a>
               </li>
             </ul>
           </div>
         </div>
-
-        <form action="/account/choose-account-number" method="post">
-          <div class="transaction-query">
-            <div class="title">Chọn số tài khoản</div>
-            <div class="account-number-wrapper">
-              <div class="account-number-text">Số tài khoản</div>
-              <div class="account-number-detail">
-                <input type="text" name="account_number" />
+        <div class="transfer-success-modal-wrapper">
+          <div class="transfer-success-modal">
+            <a href="/" class="home-icon"><i class="bx bx-home"></i></a>
+            <div class="success-tick"></div>
+            <div class="success-text">Chuyển tiền thành công</div>
+            <div class="amount">{{amount}} VND</div>
+            <div class="double-down-icon">
+              <i class="bx bx-chevrons-down"></i>
+            </div>
+            <div class="receiver-info">
+              <div class="receiver-name">
+                {{receiver.FirstName + " " + receiver.LastName}}
+              </div>
+              <div class="receiver-account">
+                PTIT BANK - {{receiver_account.accountNumber}}
               </div>
             </div>
-            <p class="error-message" id="errorMessage">
-              {% with messages = get_flashed_messages(with_categories=true) %}
-              {% if messages %} {% for category, message in messages %}
-              <span class="{{ category }}">{{ message }}</span>
-              {% endfor %} {% endif %} {% endwith %}
-            </p>
-            <button type="submit" class="my-info-confirm confirm-update-btn">
-              Xác nhận
-            </button>
+            <a href="/account/transfer-money" class="do-another-transfer"
+              >Thực hiện giao dịch khác</a
+            >
           </div>
-        </form>
+        </div>
       </main>
       <!-- MAIN -->
     </section>

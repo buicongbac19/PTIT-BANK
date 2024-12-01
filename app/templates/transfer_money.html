@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', filename='images/PTITBANK.png') }}"
+    />
+
     <!-- Boxicons -->
     <link
       href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
@@ -26,15 +32,15 @@
           </div>
         </div>
         <div class="modal-body">
-          <a href="/account/chooose-pin-code" class="choose-now">Thiết lập</a>
+          <a href="/account/choose-pin-code" class="choose-now">Thiết lập</a>
         </div>
       </div>
     </div>
     <!-- SIDEBAR -->
     <section id="sidebar">
-      <a href="#" class="brand">
-        <i class="bx bxs-smile"></i>
-        <span class="text">AdminHub</span>
+      <a href="/" class="brand">
+        <div class="logo"></div>
+        <span class="text">PTITBANK</span>
       </a>
       <ul class="side-menu top">
         <li>
@@ -67,12 +73,14 @@
             <span class="text">Cài đặt</span>
           </a>
         </li>
-        <li>
-          <a href="/login" class="logout">
-            <i class="bx bxs-log-out-circle"></i>
-            <span class="text">Đăng xuất</span>
-          </a>
-        </li>
+        <form action="{{ url_for('auth.logout') }}" method="POST">
+          <li>
+            <button type="submit" class="logout">
+              <i class="bx bxs-log-out-circle"></i>
+              <span class="text">Đăng xuất</span>
+            </button>
+          </li>
+        </form>
       </ul>
     </section>
     <!-- SIDEBAR -->
@@ -84,7 +92,7 @@
         <i class="bx bx-menu"></i>
         <a href="#" class="nav-link">Danh mục</a>
         <a href="/account/profile" class="profile">
-          <img src="../static/images/people.png" />
+          <img src="../static/images/avatar_user.png" />
         </a>
       </nav>
       <!-- NAVBAR -->
@@ -121,83 +129,24 @@
                   <div class="method-wrapper">
                     <div class="method-text">Tài khoản nguồn</div>
                     <div class="method-detail my-account-info">
-                      <div class="main-account">0387652237/BUI CONG BAC</div>
-                      <div class="amount"><strong>3,057,280 VND</strong></div>
+                      <div class="main-account">
+                        {{account.accountNumber}}/{{customer.FirstName + " " +
+                        customer.LastName}}
+                      </div>
+                      <div class="amount">
+                        <strong
+                          >{{'{:,.0f}'.format(account.Balance)}} VND</strong
+                        >
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div class="my-info-confirm">Tiếp tục</div>
-              </div>
-            </div>
-            <div class="my-info receiver-info-wrapper">
-              <div class="my-info-title">Thông tin người nhận</div>
-              <div class="detail-wrapper">
-                <div class="detail">
-                  <div class="detail-title">Thông tin người nhận</div>
-                  <div class="method-wrapper">
-                    <div class="method-text">Ngân hàng thụ hưởng</div>
-                    <div class="method-detail">
-                      <div class="logo"></div>
-                      <div class="text">PTIT BANK</div>
-                    </div>
-                  </div>
-                  <div class="method-wrapper">
-                    <div class="method-text">Số tài khoản</div>
-                    <div class="method-detail"><input /></div>
-                  </div>
-                  <div class="method-wrapper">
-                    <div class="method-text">Tên tài khoản</div>
-                    <div class="method-detail">BÙI CÔNG BẮC</div>
-                  </div>
-                  <div class="method-wrapper">
-                    <div class="method-text">Số tiền</div>
-                    <div class="method-detail"><input /></div>
-                  </div>
-                  <div class="method-wrapper">
-                    <div class="method-text">Số tiền</div>
-                    <div class="method-detail">
-                      <input value="BUI CONG BAC chuyen tien" />
-                    </div>
-                  </div>
-                </div>
-                <div class="receiver-info-confirm">Tiếp tục</div>
-              </div>
-            </div>
-            <div class="my-info confirm-information-wrapper">
-              <div class="my-info-title">Xác nhận thông tin</div>
-              <div class="detail-wrapper">
-                <div class="detail">
-                  <div class="detail-title">Chi tiết chuyển khoản</div>
-                  <div class="method-wrapper">
-                    <div class="method-text">Tài khoản nguồn</div>
-                    <div class="method-detail">0387652237/BUI CONG BAC</div>
-                  </div>
-                  <div class="method-wrapper">
-                    <div class="method-text">Người nhận</div>
-                    <div class="method-detail">0344033697/PHAM THANH LONG</div>
-                  </div>
-                  <div class="method-wrapper">
-                    <div class="method-text">Số tiền chuyển</div>
-                    <div class="method-detail">20,000 VND</div>
-                  </div>
-                  <div class="method-wrapper">
-                    <div class="method-text">Phí chuyển</div>
-                    <div class="method-detail">0 VND</div>
-                  </div>
-                  <div class="method-wrapper">
-                    <div class="method-text">Tổng tiền</div>
-                    <div class="method-detail">20,000 VND</div>
-                  </div>
-                  <div class="method-wrapper">
-                    <div class="method-text">Nội dung</div>
-                    <div class="method-detail">BUI CONG BAC chuyen tien</div>
-                  </div>
-                  <div class="method-wrapper">
-                    <div class="method-text">Hình thức xác thực</div>
-                    <div class="method-detail">Digital OTP</div>
-                  </div>
-                </div>
-                <div class="confirm-transaction-btn">Tiếp tục</div>
+                <a
+                  style="display: block"
+                  href="/account/transfer-money/confirm-receiver-info"
+                  class="my-info-confirm"
+                  >Tiếp tục</a
+                >
               </div>
             </div>
           </li>
@@ -281,6 +230,39 @@
       receiverInfoConfirm.addEventListener("click", () => {
         confirmInformationWrapper.style.display = "block";
         receiverInfoConfirm.style.cursor = "not-allowed";
+      });
+
+      const receiveAccountNumberInput = document.querySelector(
+        ".receive-account-number"
+      );
+      const receiverAccountName = document.querySelector(
+        ".receive-account-name"
+      );
+
+      receiveAccountNumberInput.addEventListener("blur", () => {
+        const receiveAccountNumber = receiveAccountNumberInput.value.trim();
+        if (!receiveAccountNumber) return;
+
+        fetch(
+          `/api/get-account-by-account-number?account_number=${receiveAccountNumber}`
+        )
+          .then((response) => {
+            if (!response.ok)
+              throw new Error("Failed to fetch account details.");
+            return response.json();
+          })
+          .then((data) => {
+            if (data.customer) {
+              receiverAccountName.textContent = `${data.customer.FirstName} ${data.customer.LastName}`;
+              receiveAccountNumberInput.style.color = "black";
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching account:", error);
+            receiverAccountName.textContent =
+              "Tài khoản không tồn tại hoặc có lỗi!";
+            receiveAccountNumberInput.style.color = "red";
+          });
       });
     </script>
   </body>

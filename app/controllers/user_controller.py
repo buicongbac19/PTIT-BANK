@@ -9,10 +9,7 @@ from app.services.user_service import (
     handle_login,
     initiate_transfer,
     confirm_transaction,
-    process_transfer,
     query_transaction,
-    process_withdrawal,
-    create_user_account,
 )
 
 from flask import request, flash, redirect, url_for, session, render_template
@@ -94,21 +91,8 @@ def confirm_transaction():
     return confirm_transaction()
 
 
-# Controller để xử lý giao dịch và kiểm tra mã PIN
-def execute_transfer():
-    return process_transfer()
-
-
 def get_transaction():
     return query_transaction()
-
-
-def handle_withdraw_request():
-    return process_withdrawal()
-
-
-def register_user():
-    create_user_account()
 
 
 def dashboard():

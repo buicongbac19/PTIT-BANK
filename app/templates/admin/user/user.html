@@ -4,13 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', filename='images/PTITBANK.png') }}"
+    />
+
     <!-- Boxicons -->
     <link
       href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
       rel="stylesheet"
     />
     <!-- My CSS -->
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}" />
+    <link
+      rel="stylesheet"
+      href="{{url_for('static', filename='css/style.css')}}"
+    />
     <link
       rel="shortcut icon"
       href="{{url_for('static', filename='images/9703596.png')}}"
@@ -33,8 +42,8 @@
     <!-- SIDEBAR -->
     <section id="sidebar">
       <a href="/admin" class="brand">
-        <i class="bx bxs-smile"></i>
-        <span class="text">Admin</span>
+        <div class="logo"></div>
+        <span class="text">PTITBANK</span>
       </a>
       <ul class="side-menu top">
         <li class="side-menu-li">
@@ -65,12 +74,14 @@
         </li>
       </ul>
       <ul class="side-menu">
-        <li>
-          <a href="/login" class="logout">
-            <i class="bx bxs-log-out-circle"></i>
-            <span class="text">Đăng xuất</span>
-          </a>
-        </li>
+        <form action="{{ url_for('auth.logout') }}" method="POST">
+          <li>
+            <button type="submit" class="logout">
+              <i class="bx bxs-log-out-circle"></i>
+              <span class="text">Đăng xuất</span>
+            </button>
+          </li>
+        </form>
       </ul>
     </section>
     <!-- SIDEBAR -->
@@ -96,7 +107,7 @@
           <span class="num">8</span>
         </a>
         <a href="#" class="profile">
-          <img src="{{url_for('static', filename='images/images.jpg')}}" />
+          <img src="{{url_for('static', filename='images/9703596.png')}}" />
         </a>
       </nav>
       <!-- NAVBAR -->

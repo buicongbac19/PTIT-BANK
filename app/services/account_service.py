@@ -3,15 +3,21 @@ import string
 import re
 import unicodedata
 from decimal import Decimal
+import uuid
+from datetime import datetime, timezone
+from sqlalchemy import case, or_, desc
+from sqlalchemy.orm import aliased
 
 
 from flask import render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db
-from app.models import Account, Customer
+from app.models import Account, Customer, Transaction
 
-from app.controllers.email_controller import send_verification_email
+from app.controllers.email_controller import (
+    send_verification_email,
+)
 
 
 def generate_account_id(id_length=8):
@@ -369,7 +375,23 @@ def handle_choose_pin_code(pin_code):
     return "Thiết lập mã pin thành công!", "success"
 
 
+def check_role():
+    account_id = session.get("account_id")
+    if not account_id:
+        return "Bạn chưa đăng nhập", "danger"
+    account = Account.query.filter_by(AccountID=account_id).first()
+    if not account:
+        return "Tài khoản không tồn tại", "danger"
+    customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
+    if customer.Role != "Admin":
+        return "Bạn không có quyền truy cập trang này", "danger"
+
+
 def retrieving_account():
+    message, category = check_role()
+    if category == "danger":
+        flash(message, category)
+        return redirect(url_for("auth.login"))
     page = request.args.get("page", 1, type=int)  # Default to page 1
     per_page = 8  # 8 accounts per page
 
@@ -382,6 +404,10 @@ def retrieving_account():
 
 
 def edit_account(account_id):
+    message, category = check_role()
+    if category == "danger":
+        flash(message, category)
+        return redirect(url_for("auth.login"))
     account = Account.query.get(account_id)  # Lấy thông tin tài khoản từ DB
     if not account:
         return "Account not found", 404
@@ -404,6 +430,10 @@ def edit_account(account_id):
 
 
 def locked_account(account_id):
+    message, category = check_role()
+    if category == "danger":
+        flash(message, category)
+        return redirect(url_for("auth.login"))
     account = Account.query.get(account_id)  # Lấy thông tin tài khoản từ DB
     if not account:
         return "Account not found", 404
@@ -414,6 +444,10 @@ def locked_account(account_id):
 
 
 def unlocked_account(account_id):
+    message, category = check_role()
+    if category == "danger":
+        flash(message, category)
+        return redirect(url_for("auth.login"))
     account = Account.query.get(account_id)  # Lấy thông tin tài khoản từ DB
     if not account:
         return "Account not found", 404
@@ -424,6 +458,10 @@ def unlocked_account(account_id):
 
 
 def recharge_account(account_id):
+    message, category = check_role()
+    if category == "danger":
+        flash(message, category)
+        return redirect(url_for("auth.login"))
     account = Account.query.get(account_id)  # Lấy thông tin tài khoản từ DB
     if not account:
         return "Account not found", 404
@@ -435,3 +473,278 @@ def recharge_account(account_id):
         return redirect(url_for("admin.account_list"))
 
     return render_template("admin/account/recharge.html", account=account)
+
+
+def handle_get_account_by_account_number(account_number):
+    if not account_number:
+        return "Vui lòng nhập số tài khoản!", "danger", None, None
+    account = Account.query.filter_by(accountNumber=account_number).first()
+    if not account:
+        return "Tài khoản không tồn tại!", "danger", None, None
+    customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
+    if not customer:
+        return "Không tìm thấy thông tin khách hàng!", "danger", None, None
+    customer.FirstName = remove_accents(customer.FirstName.upper())
+    customer.LastName = remove_accents(customer.LastName.upper())
+    return "Thông tin tài khoản", "success", account, customer
+
+
+def handle_confirm_receiver_info(receiver_account_number, amount, transfer_content):
+    account_id = session.get("account_id")
+    account = Account.query.filter_by(AccountID=account_id).first()
+    customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
+    if not receiver_account_number:
+        return (
+            "Vui lòng nhập số tài khoản nhận!",
+            "danger",
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
+    if not amount:
+        return (
+            "Vui lòng nhập số tiền giao dịch!",
+            "danger",
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
+    if int(amount.replace(",", "")) > account.Balance:
+        return (
+            "Số dư của bạn không đủ!",
+            "danger",
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
+    receiver_account = Account.query.filter_by(
+        accountNumber=receiver_account_number
+    ).first()
+    receiver = Customer.query.filter_by(CustomerID=receiver_account.CustomerID).first()
+    customer.FirstName = remove_accents(customer.FirstName.upper())
+    customer.LastName = remove_accents(customer.LastName.upper())
+    receiver.FirstName = remove_accents(receiver.FirstName.upper())
+    receiver.LastName = remove_accents(receiver.LastName.upper())
+    return (
+        "",
+        "success",
+        receiver_account,
+        receiver,
+        amount,
+        transfer_content,
+        account,
+        customer,
+    )
+
+
+def handle_confirm_pin_code(
+    receiver_account, receiver, amount, transfer_content, pin_code
+):
+    from app.services.email_service import (
+        send_transaction_email,
+        send_receive_transaction_email,
+    )
+
+    receiver_account = Account.query.filter_by(accountNumber=receiver_account).first()
+    receiver = Customer.query.filter_by(CustomerID=receiver).first()
+    account_id = session.get("account_id")
+    if not account_id:
+        return "Bạn chưa đăng nhập", "danger"
+    account = Account.query.filter_by(AccountID=account_id).first()
+    customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
+    if not account:
+        return "Tài khoản không tồn tại", "danger"
+    if not pin_code:
+        return "Vui lòng nhập mã pin!", "danger"
+    if account.PinCode != pin_code:
+        return "Mã pin không đúng!", "danger"
+    amount = int(amount.replace(",", ""))
+    try:
+        receiver_account.Balance += amount
+
+        account.Balance -= amount
+
+        account.creditScored += 100
+
+        transaction = Transaction(
+            TransactionID=str(uuid.uuid4()),  # Tạo ID giao dịch duy nhất
+            senderAccountNumber=account.accountNumber,
+            recipientAccountNumber=receiver_account.accountNumber,
+            TransactionDate=datetime.now(timezone.utc),  # Lấy thời gian hiện tại
+            TransactionType="Transfer Money",
+            Amount=amount,
+            Description=transfer_content,
+        )
+        customer.FirstName = remove_accents(customer.FirstName.upper())
+        customer.LastName = remove_accents(customer.LastName.upper())
+        receiver.FirstName = remove_accents(receiver.FirstName.upper())
+        receiver.LastName = remove_accents(receiver.LastName.upper())
+
+        customer_transaction_details = {
+            "recipient_name": receiver.FirstName + " " + receiver.LastName,
+            "recipient_account": receiver_account.accountNumber,
+            "amount": "- " + str(amount),
+            "content": transfer_content,
+            "transaction_date": transaction.TransactionDate,
+        }
+
+        receiver_transaction_details = {
+            "sender_name": customer.FirstName + " " + customer.LastName,
+            "sender_account": account.accountNumber,
+            "amount": "+ " + str(amount),
+            "content": transfer_content,
+            "transaction_date": transaction.TransactionDate,
+        }
+
+        db.session.add(transaction)
+
+        db.session.commit()
+
+        send_transaction_email(
+            customer.Email, customer_transaction_details, is_plus=False
+        )
+        send_receive_transaction_email(
+            receiver.Email, receiver_transaction_details, is_plus=True
+        )
+
+        return "Giao dịch thành công!", "success"
+    except Exception as e:
+        db.session.rollback()
+        print(e)
+        return (
+            "Có lỗi xảy ra khi thực hiện giao dịch. Vui lòng thử lại!",
+            "danger",
+        )
+
+
+def get_latest_transactions(account_id, limit=5):
+    # Định nghĩa alias cho Account (người nhận)
+    RecipientAccount = aliased(Account)
+    account_number = (
+        Account.query.with_entities(Account.accountNumber)
+        .filter_by(AccountID=account_id)
+        .first()[0]
+    )
+
+    # Truy vấn giao dịch
+    transactions = (
+        db.session.query(
+            Transaction,
+            Account.Username.label("sender_username"),
+            Customer.FirstName.label("recipient_first_name"),
+            Customer.LastName.label("recipient_last_name"),
+            RecipientAccount.accountNumber.label("recipient_account_number"),
+        )
+        .join(Account, Transaction.senderAccountNumber == Account.accountNumber)
+        .join(
+            RecipientAccount,
+            Transaction.recipientAccountNumber == RecipientAccount.accountNumber,
+        )
+        .join(Customer, RecipientAccount.CustomerID == Customer.CustomerID)
+        .filter(Transaction.senderAccountNumber == account_number)
+        .order_by(desc(Transaction.TransactionDate))
+        .limit(limit)
+        .all()
+    )
+
+    # Xử lý kết quả để gộp FirstName và LastName thành Name
+    result = []
+    for (
+        txn,
+        sender_username,
+        first_name,
+        last_name,
+        recipient_account_number,
+    ) in transactions:
+        recipient_name = (
+            f"{first_name} {last_name}"
+            if first_name and last_name
+            else "Không xác định"
+        )
+        result.append(
+            (txn, sender_username, recipient_name, recipient_account_number)
+        )  # Trả về tuple phù hợp với template
+
+    return result
+
+
+def get_transaction():
+    account_id = session.get("account_id")
+    if not account_id:
+        flash("Bạn chưa đăng nhập", "danger")
+        return redirect(url_for("login"))
+
+    # Truy vấn thông tin tài khoản và khách hàng
+    account = Account.query.get(account_id)
+    customer = Customer.query.get(account.CustomerID)
+    transactions = None  # Khởi tạo biến transactions
+
+    if request.method == "POST":
+        start_date = datetime.strptime(request.form.get("start_date"), "%Y-%m-%d")
+        end_date = datetime.strptime(request.form.get("end_date"), "%Y-%m-%d")
+
+        # Định nghĩa alias cho Account và Customer
+        SenderAccount = aliased(Account)
+        RecipientAccount = aliased(Account)
+        SenderCustomer = aliased(Customer)
+        RecipientCustomer = aliased(Customer)
+
+        # Lấy số trang hiện tại
+        page = request.args.get("page", 1, type=int)
+
+        # Truy vấn giao dịch với phân trang
+        transactions = (
+            db.session.query(
+                Transaction,
+                SenderCustomer.FirstName.label("sender_first_name"),
+                SenderCustomer.LastName.label("sender_last_name"),
+                RecipientCustomer.FirstName.label("recipient_first_name"),
+                RecipientCustomer.LastName.label("recipient_last_name"),
+                RecipientAccount.accountNumber.label("recipient_account_number"),
+                Transaction.senderAccountNumber,
+                Transaction.recipientAccountNumber,
+                # Xác định loại giao dịch
+                case(
+                    (
+                        Transaction.senderAccountNumber == account.accountNumber,
+                        "outgoing",
+                    ),
+                    else_="incoming",
+                ).label("transaction_type"),
+            )
+            .join(
+                SenderAccount,
+                Transaction.senderAccountNumber == SenderAccount.accountNumber,
+            )
+            .join(
+                RecipientAccount,
+                Transaction.recipientAccountNumber == RecipientAccount.accountNumber,
+            )
+            .join(SenderCustomer, SenderAccount.CustomerID == SenderCustomer.CustomerID)
+            .join(
+                RecipientCustomer,
+                RecipientAccount.CustomerID == RecipientCustomer.CustomerID,
+            )
+            .filter(
+                or_(
+                    Transaction.senderAccountNumber == account.accountNumber,
+                    Transaction.recipientAccountNumber == account.accountNumber,
+                ),
+                Transaction.TransactionDate.between(start_date, end_date),
+            )
+            .order_by(desc(Transaction.TransactionDate))
+            .paginate(page=page, per_page=10, error_out=False)
+        )
+
+    return render_template(
+        "profile.html", transactions=transactions, account=account, customer=customer
+    )

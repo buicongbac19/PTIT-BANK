@@ -60,8 +60,19 @@ body {
   overflow-x: hidden;
 }
 
+.logo {
+  background-image: url("../images/PTITBANK.png");
+  background-size: contain;
+  width: 40px;
+  height: 40px;
+  background-position: center center;
+  background-repeat: no-repeat;
+  margin: 0 20px;
+}
+
 /* SIDEBAR */
 #sidebar {
+  padding-top: 10px;
   position: fixed;
   top: 0;
   left: 0;
@@ -89,7 +100,7 @@ body {
   height: 56px;
   display: flex;
   align-items: center;
-  color: var(--blue);
+  color: rgb(237, 28, 36);
   position: sticky;
   top: 0;
   left: 0;
@@ -98,7 +109,6 @@ body {
   padding-bottom: 20px;
   box-sizing: content-box;
 }
-
 #sidebar .brand .bx {
   min-width: 60px;
   display: flex;
@@ -332,7 +342,7 @@ body {
 }
 
 .main-account .left-content {
-  background-image: url("../images/MB.png");
+  background-image: url("../images/PTITBANK.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: contain;
@@ -582,7 +592,7 @@ body {
 }
 
 .method-detail .logo {
-  background-image: url("../images/MB.png");
+  background-image: url("../images/PTITBANK.png");
   background-position: center center;
   background-repeat: no-repeat;
   background-size: contain;
@@ -744,6 +754,29 @@ body {
 
 .confirm-choose-modal .choose-now {
   width: 100%;
+}
+
+.receive-account-name {
+  min-height: 38.4px;
+}
+
+.receiver-info-confirm {
+  padding: 10px;
+  font-size: 16px;
+  margin-left: 500px;
+}
+
+.logout {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  margin-left: 6px;
+  cursor: pointer;
+}
+
+.logout:hover {
+  color: red;
 }
 
 /* MAIN */

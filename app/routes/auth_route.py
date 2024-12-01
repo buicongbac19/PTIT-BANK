@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, session, redirect, url_for, flash
 
 
 auth_bp = Blueprint("auth", __name__)
@@ -44,3 +44,10 @@ def reset_password():
     from app.controllers.account_controller import reset_password
 
     return reset_password()
+
+
+@auth_bp.route("/logout", methods=["POST", "GET"])
+def logout():
+    session.clear()
+    flash("Bạn đã đăng xuất thành công.", "success")
+    return redirect(url_for("auth.login"))

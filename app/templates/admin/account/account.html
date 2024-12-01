@@ -4,13 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', filename='images/PTITBANK.png') }}"
+    />
+
     <!-- Boxicons -->
     <link
       href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
       rel="stylesheet"
     />
     <!-- My CSS -->
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}" />
+    <link
+      rel="stylesheet"
+      href="{{url_for('static', filename='css/style.css')}}"
+    />
     <link
       rel="shortcut icon"
       href="{{url_for('static', filename='images/9703596.png')}}"
@@ -38,8 +47,8 @@
     <!-- SIDEBAR -->
     <section id="sidebar">
       <a href="/admin" class="brand">
-        <i class="bx bxs-smile"></i>
-        <span class="text">Admin</span>
+        <div class="logo"></div>
+        <span class="text">PTITBANK</span>
       </a>
       <ul class="side-menu top">
         <li class="side-menu-li">
@@ -70,12 +79,14 @@
         </li>
       </ul>
       <ul class="side-menu">
-        <li>
-          <a href="/login" class="logout">
-            <i class="bx bxs-log-out-circle"></i>
-            <span class="text">Đăng xuất</span>
-          </a>
-        </li>
+        <form action="{{ url_for('auth.logout') }}" method="POST">
+          <li>
+            <button type="submit" class="logout">
+              <i class="bx bxs-log-out-circle"></i>
+              <span class="text">Đăng xuất</span>
+            </button>
+          </li>
+        </form>
       </ul>
     </section>
     <!-- SIDEBAR -->
@@ -101,7 +112,7 @@
           <span class="num">8</span>
         </a>
         <a href="#" class="profile">
-          <img src="{{url_for('static', filename='images/')}}images.jpg" />
+          <img src="{{url_for('static', filename='images/')}}9703596.png" />
         </a>
       </nav>
       <!-- NAVBAR -->
@@ -145,7 +156,13 @@
                 <tr>
                   <td>{{ account.Username}}</td>
                   <td>{{ account.accountNumber}}</td>
-                  <td><span class="status {{'success' if account.Status.lower() == 'active' else 'error'}}">{{'Đang hoạt động' if account.Status.lower() == 'active' else 'Đang bị khóa'}}</span></td>
+                  <td>
+                    <span
+                      class="status {{'success' if account.Status.lower() == 'active' else 'error'}}"
+                      >{{'Đang hoạt động' if account.Status.lower() == 'active'
+                      else 'Đang bị khóa'}}</span
+                    >
+                  </td>
                   <td>{{ account.AccountType }}</td>
                   <td>
                     <a href="/admin/account/edit/{{ account.AccountID }}"
@@ -153,19 +170,21 @@
                         ><i class="bx bx-pencil"></i>Sửa</span
                       ></a
                     >
-                    |
-                    {% if account.Status.lower() == 'active' %}
-                        <a href="#" onclick="confirmLockAccount(event, '{{ account.AccountID}}')">
-                            <span class="text-danger">
-                                <i class="bx bxs-lock"></i>Khóa
-                            </span>
-                        </a>
+                    | {% if account.Status.lower() == 'active' %}
+                    <a
+                      href="#"
+                      onclick="confirmLockAccount(event, '{{ account.AccountID}}')"
+                    >
+                      <span class="text-danger">
+                        <i class="bx bxs-lock"></i>Khóa
+                      </span>
+                    </a>
                     {% else %}
-                        <a href="/admin/account/unlock/{{ account.AccountID}}">
-                            <span class="text-blue">
-                                <i class="bx bxs-lock-open"></i>Bỏ khóa
-                            </span>
-                        </a>
+                    <a href="/admin/account/unlock/{{ account.AccountID}}">
+                      <span class="text-blue">
+                        <i class="bx bxs-lock-open"></i>Bỏ khóa
+                      </span>
+                    </a>
                     {% endif %}
                   </td>
                   <td>
@@ -197,23 +216,30 @@
             <div class="container-pagination">
               <div class="pagination">
                 {% if pagination.has_prev %}
-                <a class="pagi" href="{{ url_for('admin.account_list', page=pagination.prev_num) }}" style="margin-left: 10px;">Previous</a>
-                {% endif %}
-
-                {% for page_num in pagination.iter_pages() %}
-                    {% if page_num %}
-                        {% if page_num == pagination.page %}
-                            <strong style="margin-left: 10px;">{{ page_num }}</strong>
-                        {% else %}
-                            <a href="{{ url_for('admin.account_list', page=page_num) }}" style="margin-left: 10px;">{{ page_num }}</a>
-                        {% endif %}
-                    {% else %}
-                        <span>...</span>
-                    {% endif %}
-                {% endfor %}
-
-                {% if pagination.has_next %}
-                <a class="pagi" href="{{ url_for('admin.account_list', page=pagination.next_num) }}" style="margin-left: 10px;">Next</a>
+                <a
+                  class="pagi"
+                  href="{{ url_for('admin.account_list', page=pagination.prev_num) }}"
+                  style="margin-left: 10px"
+                  >Previous</a
+                >
+                {% endif %} {% for page_num in pagination.iter_pages() %} {% if
+                page_num %} {% if page_num == pagination.page %}
+                <strong style="margin-left: 10px">{{ page_num }}</strong>
+                {% else %}
+                <a
+                  href="{{ url_for('admin.account_list', page=page_num) }}"
+                  style="margin-left: 10px"
+                  >{{ page_num }}</a
+                >
+                {% endif %} {% else %}
+                <span>...</span>
+                {% endif %} {% endfor %} {% if pagination.has_next %}
+                <a
+                  class="pagi"
+                  href="{{ url_for('admin.account_list', page=pagination.next_num) }}"
+                  style="margin-left: 10px"
+                  >Next</a
+                >
                 {% endif %}
               </div>
             </div>

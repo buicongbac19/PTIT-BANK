@@ -18,10 +18,13 @@ from app.services.account_service import (
     handle_convert_credit_score,
     handle_choose_account_number,
     handle_choose_pin_code,
+    handle_get_account_by_account_number,
+    handle_confirm_receiver_info,
+    handle_confirm_pin_code,
 )
 
 
-from flask import session, redirect, request, flash, render_template, url_for
+from flask import session, redirect, request, flash, render_template, url_for, jsonify
 from datetime import date
 import uuid
 
@@ -231,3 +234,174 @@ def recharge_account(account_id):
     from app.services.account_service import recharge_account
 
     return recharge_account(account_id)
+
+
+def get_account_by_account_number():
+    account_number = request.args.get("account_number")
+    message, category, account, customer = handle_get_account_by_account_number(
+        account_number
+    )
+
+    if category == "danger":
+        return jsonify({"error": message}), 400
+
+    return (
+        jsonify(
+            {
+                "account": {
+                    "accountNumber": account.accountNumber,
+                    "balance": account.Balance,
+                },
+                "customer": {
+                    "FirstName": customer.FirstName,
+                    "LastName": customer.LastName,
+                },
+            }
+        ),
+        200,
+    )
+
+
+def confirm_receiver_info():
+    from app.models import Account, Customer
+    from app.services.account_service import remove_accents
+
+    if request.method == "POST":
+        receiver_account_number = request.form.get("receiver_account_number")
+        amount = request.form.get("amount")
+        transfer_content = request.form.get("transfer_content")
+
+        (
+            message,
+            category,
+            receiver_account,
+            receiver,
+            amount,
+            transfer_content,
+            account,
+            customer,
+        ) = handle_confirm_receiver_info(
+            receiver_account_number, amount, transfer_content
+        )
+        if category == "danger":
+            flash(message, category)
+            return redirect(url_for("home.confirm_receiver_info"))
+        return render_template(
+            "confirm_transfer_info.html",
+            receiver_account=receiver_account,
+            receiver=receiver,
+            amount=amount,
+            transfer_content=transfer_content,
+            account=account,
+            customer=customer,
+        )
+    account_id = session.get("account_id")
+    if not account_id:
+        flash("Bạn chưa đăng nhập", "danger")
+        return redirect(url_for("auth.login"))
+    account = Account.query.filter_by(AccountID=account_id).first()
+    if not account:
+        flash("Tài khoản không tồn tại", "danger")
+        return redirect(url_for("auth.login"))
+    customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
+    customer.FirstName = remove_accents(customer.FirstName.upper())
+    customer.LastName = remove_accents(customer.LastName.upper())
+    return render_template(
+        "confirm_receiver_info.html", account=account, customer=customer
+    )
+
+
+def confirm_transfer_info():
+    from app.models import Account, Customer
+
+    if request.method == "POST":
+        receiver_account = request.form.get("receiver_account")
+        receiver = request.form.get("receiver")
+        amount = request.form.get("amount")
+        transfer_content = request.form.get("transfer_content")
+        account = request.form.get("account")
+        customer = request.form.get("customer")
+        receiver_account = Account.query.filter_by(
+            accountNumber=receiver_account
+        ).first()
+        receiver = Customer.query.filter_by(CustomerID=receiver).first()
+        account = Account.query.filter_by(accountNumber=account).first()
+        customer = Customer.query.filter_by(CustomerID=customer).first()
+        print(
+            "\n-------------------------------Check data>>>",
+            receiver_account,
+            receiver,
+            amount,
+            transfer_content,
+            account,
+            customer,
+            "--------------------------------\n",
+        )
+        return render_template(
+            "confirm_pin_code.html",
+            receiver_account=receiver_account,
+            receiver=receiver,
+            amount=amount,
+            transfer_content=transfer_content,
+            account=account,
+            customer=customer,
+        )
+    return render_template(
+        "confirm_transfer_info.html",
+        receiver_account=None,
+        receiver=None,
+        amount=None,
+        transfer_content=None,
+        account=None,
+        customer=None,
+    )
+
+
+def confirm_pin_code():
+    from app.services.account_service import remove_accents, get_detail_account
+    from app.models import Account, Customer
+
+    message, category, [account, customer] = get_detail_account(
+        session.get("account_id")
+    )
+    if category == "danger":
+        flash(message, category)
+        return redirect(url_for("auth.login"))
+
+    if request.method == "POST":
+        receiver_account = request.form.get("receiver_account")
+        receiver = request.form.get("receiver")
+        amount = request.form.get("amount")
+        transfer_content = request.form.get("transfer_content")
+        pin_code = request.form.get("pin_code")
+        message, category = handle_confirm_pin_code(
+            receiver_account,
+            receiver,
+            amount,
+            transfer_content,
+            pin_code,
+        )
+        if category == "danger":
+            flash(message, category)
+            return render_template(
+                "confirm_pin_code.html",
+                receiver_account=receiver_account,
+                receiver=receiver,
+                amount=amount,
+                transfer_content=transfer_content,
+                account=account,
+                customer=customer,
+            )
+        receiver_account = Account.query.filter_by(
+            accountNumber=receiver_account
+        ).first()
+        receiver = Customer.query.filter_by(CustomerID=receiver).first()
+        receiver.FirstName = remove_accents(receiver.FirstName.upper())
+        receiver.LastName = remove_accents(receiver.LastName.upper())
+        return render_template(
+            "transfer_success.html",
+            amount=amount,
+            receiver_account=receiver_account,
+            receiver=receiver,
+        )
+    return render_template("confirm_pin_code.html")

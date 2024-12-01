@@ -1,8 +1,14 @@
-<!DOCTYPE html>
+<!DOCTYPE >
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', filename='images/PTITBANK.png') }}"
+    />
 
     <!-- Boxicons -->
     <link
@@ -23,9 +29,9 @@
   <body>
     <!-- SIDEBAR -->
     <section id="sidebar">
-      <a href="#" class="brand">
-        <i class="bx bxs-smile"></i>
-        <span class="text">AdminHub</span>
+      <a href="/" class="brand">
+        <div class="logo"></div>
+        <span class="text">PTITBANK</span>
       </a>
       <ul class="side-menu top">
         <li>
@@ -58,12 +64,14 @@
             <span class="text">Cài đặt</span>
           </a>
         </li>
-        <li>
-          <a href="/login" class="logout">
-            <i class="bx bxs-log-out-circle"></i>
-            <span class="text">Đăng xuất</span>
-          </a>
-        </li>
+        <form action="{{ url_for('auth.logout') }}" method="POST">
+          <li>
+            <button type="submit" class="logout">
+              <i class="bx bxs-log-out-circle"></i>
+              <span class="text">Đăng xuất</span>
+            </button>
+          </li>
+        </form>
       </ul>
     </section>
     <!-- SIDEBAR -->
@@ -75,7 +83,7 @@
         <i class="bx bx-menu"></i>
         <a href="#" class="nav-link">Danh mục</a>
         <a href="/account/profile" class="profile">
-          <img src="../static/images/people.png" />
+          <img src="../static/images/avatar_user.png" />
         </a>
       </nav>
       <!-- NAVBAR -->
@@ -133,65 +141,69 @@
           </div>
           <div class="time-wrapper">
             <div class="time-text">Khoảng thời gian</div>
-            <div class="time-detail">
-              <div class="time-start"><input value="30/10/2024" /></div>
-              <div class="arrow-icon"></div>
-              <div class="time-end"><input value="07/1/2024" /></div>
-            </div>
-            <div class="query">Truy vấn</div>
+            <form action="{{ url_for('home.get_transaction') }}" method="post">
+              <div class="time-detail">
+                <div class="time-start">
+                  <input cla type="date" name="start_date" required />
+                </div>
+                <div class="arrow-icon"></div>
+                <div class="time-end">
+                  <input type="date" name="end_date" required />
+                </div>
+              </div>
+              <button
+                type="submit"
+                class="query"
+                style="margin-top: 15px; margin-right: 15px"
+              >
+                Truy vấn
+              </button>
+            </form>
           </div>
           <div class="query-result">
             <h3>Kết quả</h3>
-            <div class="pagination">
-              <div class="pagination-item active">1</div>
-              <div class="pagination-item">2</div>
-              <div class="pagination-item">3</div>
-              <div class="pagination-item">4</div>
-              <div class="pagination-item">5</div>
-            </div>
             <table class="query-result-table">
               <tr>
                 <th>STT</th>
                 <th>Ngày giao dịch</th>
                 <th>Số tiền</th>
                 <th>Nội dung</th>
-                <th>Đơn vị thụ hưởng / Đơn vị chuyển</th>
+                <th>Đối tác</th>
               </tr>
+              {% if transactions %} {% for item in transactions.items %} {% set
+              transaction = item[0] %} {% set sender_first_name = item[1] %} {%
+              set sender_last_name = item[2] %} {% set recipient_first_name =
+              item[3] %} {% set recipient_last_name = item[4] %} {% set
+              recipient_account_number = item[5] %} {% set sender_account_number
+              = item[6] %} {% set recipient_account_number = item[7] %} {% set
+              transaction_type = item[8] %}
               <tr>
-                <td>1</td>
-                <td>07/11/2024 11:39:44</td>
-                <td style="color: blue">+2,820,000</td>
-                <td>LE QUOC VIET chuyen tien</td>
-                <td>BUI CONG BAC - 0387652237</td>
+                <td>{{ loop.index }}</td>
+                <td>{{ transaction.TransactionDate.strftime('%d/%m/%Y') }}</td>
+                <td>
+                  {% if transaction_type == 'incoming' %}
+                  <span style="color: green"
+                    >+{{ '{:,.0f}'.format(transaction.Amount) }} VNĐ</span
+                  >
+                  {% else %}
+                  <span style="color: red"
+                    >-{{ '{:,.0f}'.format(transaction.Amount) }} VNĐ</span
+                  >
+                  {% endif %}
+                </td>
+                <td>{{ transaction.Description }}</td>
+                <td>
+                  {% if transaction_type == 'incoming' %} {{ sender_first_name
+                  }} {{ sender_last_name }} - {{ sender_account_number }} {%
+                  else %} {{ recipient_first_name }} {{ recipient_last_name }} -
+                  {{ recipient_account_number }} {% endif %}
+                </td>
               </tr>
+              {% endfor %} {% else %}
               <tr>
-                <td>1</td>
-                <td>07/11/2024 11:39:44</td>
-                <td style="color: red">+2,820,000</td>
-                <td>LE QUOC VIET chuyen tien</td>
-                <td>BUI CONG BAC - 0387652237</td>
+                <td colspan="5">Không có giao dịch nào</td>
               </tr>
-              <tr>
-                <td>1</td>
-                <td>07/11/2024 11:39:44</td>
-                <td style="color: blue">+2,820,000</td>
-                <td>LE QUOC VIET chuyen tien</td>
-                <td>BUI CONG BAC - 0387652237</td>
-              </tr>
-              <tr>
-                <td>1</td>
-                <td>07/11/2024 11:39:44</td>
-                <td style="color: red">+2,820,000</td>
-                <td>LE QUOC VIET chuyen tien</td>
-                <td>BUI CONG BAC - 0387652237</td>
-              </tr>
-              <tr>
-                <td>1</td>
-                <td>07/11/2024 11:39:44</td>
-                <td style="color: blue">+2,820,000</td>
-                <td>LE QUOC VIET chuyen tien</td>
-                <td>BUI CONG BAC - 0387652237</td>
-              </tr>
+              {% endif %}
             </table>
           </div>
         </div>

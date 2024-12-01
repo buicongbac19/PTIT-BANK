@@ -47,8 +47,19 @@ body {
   overflow-x: hidden;
 }
 
+.logo {
+  background-image: url("../images/PTITBANK.png");
+  background-size: contain;
+  width: 40px;
+  height: 40px;
+  background-position: center center;
+  background-repeat: no-repeat;
+  margin: 0 20px;
+}
+
 /* SIDEBAR */
 #sidebar {
+  padding-top: 10px;
   position: fixed;
   top: 0;
   left: 0;
@@ -61,19 +72,22 @@ body {
   overflow-x: hidden;
   scrollbar-width: none;
 }
+
 #sidebar::--webkit-scrollbar {
   display: none;
 }
+
 #sidebar.hide {
   width: 60px;
 }
+
 #sidebar .brand {
   font-size: 24px;
   font-weight: 700;
   height: 56px;
   display: flex;
   align-items: center;
-  color: var(--blue);
+  color: rgb(237, 28, 36);
   position: sticky;
   top: 0;
   left: 0;
@@ -82,6 +96,7 @@ body {
   padding-bottom: 20px;
   box-sizing: content-box;
 }
+
 #sidebar .brand .bx {
   min-width: 60px;
   display: flex;
@@ -678,6 +693,19 @@ button span {
 
 button:hover {
   background-color: #0071e2;
+}
+
+.logout {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  margin-left: 6px;
+  cursor: pointer;
+}
+
+.logout:hover {
+  color: red;
 }
 
 /* BUTTON */
