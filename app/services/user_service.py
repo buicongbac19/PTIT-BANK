@@ -185,6 +185,8 @@ def handle_login(username, password):
     account = Account.query.filter_by(Username=username).first()
     if not account:
         return "Tên đăng nhập không tồn tại", "danger", None
+    if account.Status == "locked":
+        return "Tài khoản của bạn đã bị khoá", "danger", None
     attempts = session.get("login_attempts", 0)
     if attempts >= 5:
         return (

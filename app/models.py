@@ -53,17 +53,6 @@ class Transaction(db.Model):
     Description = db.Column(db.String)
 
 
-# Lớp Service (Bảng Services)
-class Service(db.Model):
-    __tablename__ = "Service"
-
-    ServiceID = db.Column(db.String, primary_key=True)  # Khóa chính
-    ServiceName = db.Column(db.String)
-    Description = db.Column(db.String)
-    Fee = db.Column(db.Numeric(15, 2))  # Dữ liệu kiểu DECIMAL trong MySQL
-    AvailabilityStatus = db.Column(db.String)
-
-
 # Lớp CreditScore (Bảng CreditScores)
 class CreditScore(db.Model):
     __tablename__ = "CreditScore"
