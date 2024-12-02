@@ -16,15 +16,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.models import Account, Customer, Transaction
 
-vietnam_tz = pytz.timezone('Asia/Ho_Chi_Minh')
+vietnam_tz = pytz.timezone("Asia/Ho_Chi_Minh")
 
 from app.controllers.email_controller import (
     send_verification_email,
 )
-
-
-def generate_account_id(id_length=8):
-    return "".join(random.choices(string.digits, k=id_length))
 
 
 def is_strong_password(password):
@@ -47,6 +43,9 @@ def is_strong_password(password):
 
 
 def handle_create_account(data):
+    exist_username_account = Account.query.filter_by(Username=data["Username"]).first()
+    if exist_username_account:
+        return "Tên đăng nhập đã tồn tại", "danger"
     if "Password" in data:
         message, category = is_strong_password(data["Password"])
         if category == "danger":
@@ -72,30 +71,6 @@ def get_detail_account(account_id):
         return "Tài khoản không tồn tại", "danger", [None, None]
     customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
     return "", "success", [account, customer]
-
-
-def search_account():
-    account_id = request.args.get("AccountID", None)
-    account_number = request.args.get("accountNumber", None)
-
-    # Tìm kiếm theo AccountID hoặc accountNumber
-    if account_id:
-        accounts = Account.query.filter_by(AccountID=account_id).all()
-    elif account_number:
-        accounts = Account.query.filter_by(accountNumber=account_number).all()
-    else:
-        accounts = []
-
-    return render_template("account_list.html", accounts=accounts)
-
-
-def generate_account_numbers(phone_number, quantity=10):
-    account_numbers = [phone_number]
-    while len(account_numbers) < quantity:
-        new_account = str(random.randint(1000000000, 9999999999))
-        if not Account.query.filter_by(accountNumber=new_account).first():
-            account_numbers.append(new_account)
-    return account_numbers
 
 
 # Lưu số tài khoản người dùng chọn vào database
@@ -242,71 +217,6 @@ def handle_change_password(old_password, new_password, verify_code):
     return "Đổi mật khẩu thành công", "success"
 
 
-def add_pin():
-    if request.method == "POST":
-        new_pin = request.form.get("new_pin")
-        account_id = session.get("account_id")
-
-        # Kiểm tra xem mã PIN có hợp lệ không
-        if not new_pin:
-            flash("Mã PIN không thể trống.", "danger")
-            return render_template("set_pin.html")
-
-        if not re.match(r"^\d{6}$", new_pin):
-            flash("Mã PIN phải là 6 chữ số.", "danger")
-            return render_template("set_pin.html")
-
-        # Lấy tài khoản từ cơ sở dữ liệu
-        account = Account.query.get(account_id)
-        if account:
-            if account.PinCode:
-                flash("Mã PIN đã tồn tại. Hãy sử dụng chức năng cập nhật.", "danger")
-                return render_template("set_pin.html")
-
-            # Mã hóa và lưu mã PIN mới
-            account.PinCode = generate_password_hash(new_pin)
-            db.session.commit()
-            flash("Mã PIN đã được thêm thành công.", "success")
-            return redirect(url_for("dashboard"))
-        else:
-            flash("Tài khoản không tồn tại.", "danger")
-            return redirect(url_for("set_pin"))
-
-    return render_template("set_pin.html")
-
-
-# Service để cập nhật mã PIN
-def update_pin():
-    if request.method == "POST":
-        old_pin = request.form.get("old_pin")
-        new_pin = request.form.get("new_pin")
-        account_id = session.get("account_id")
-
-        # Kiểm tra độ dài mã PIN mới hợp lệ
-        if not re.match(r"^\d{6}$", new_pin):
-            flash("Mã PIN mới phải là 6 chữ số.", "danger")
-            return render_template("change_pin.html")
-
-        # Lấy tài khoản từ cơ sở dữ liệu
-        account = Account.query.get(account_id)
-        if account:
-            # Kiểm tra mã PIN cũ
-            if not check_password_hash(account.PinCode, old_pin):
-                flash("Mã PIN cũ không chính xác.", "danger")
-                return render_template("change_pin.html")
-
-            # Cập nhật mã PIN mới
-            account.PinCode = generate_password_hash(new_pin)
-            db.session.commit()
-            flash("Mã PIN đã được cập nhật thành công.", "success")
-            return redirect(url_for("dashboard"))
-        else:
-            flash("Tài khoản không tồn tại.", "danger")
-            return redirect(url_for("change_pin"))
-
-    return render_template("change_pin.html")
-
-
 def handle_convert_credit_score(amount):
     account_id = session.get("account_id")
     if not account_id:
@@ -382,18 +292,18 @@ def check_role():
     account_id = session.get("account_id")
     if not account_id:
         return "Bạn chưa đăng nhập", "danger"
-    
+
     account = Account.query.filter_by(AccountID=account_id).first()
     if not account:
         return "Tài khoản không tồn tại", "danger"
-    
+
     customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
     if not customer:
         return "Khách hàng không tồn tại", "danger"
-    
+
     if customer.Role != "Admin":
         return "Bạn không có quyền truy cập trang này", "danger"
-    
+
     return "Welcome Admin", "success"
 
 
@@ -472,7 +382,7 @@ def recharge_account(account_id):
     if category == "danger":
         flash(message, category)
         return redirect(url_for("auth.login"))
-    
+
     account = Account.query.get(account_id)  # Lấy thông tin tài khoản từ DB
     if not account:
         return "Account not found", 404
@@ -507,6 +417,17 @@ def handle_confirm_receiver_info(receiver_account_number, amount, transfer_conte
     if not receiver_account_number:
         return (
             "Vui lòng nhập số tài khoản nhận!",
+            "danger",
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
+    if receiver_account_number == account.accountNumber:
+        return (
+            "Bạn không thể giao dịch với chính mình!",
             "danger",
             None,
             None,
@@ -590,7 +511,7 @@ def handle_confirm_pin_code(
             TransactionID=str(uuid.uuid4()),  # Tạo ID giao dịch duy nhất
             senderAccountNumber=account.accountNumber,
             recipientAccountNumber=receiver_account.accountNumber,
-            TransactionDate = datetime.now(vietnam_tz),
+            TransactionDate=datetime.now(vietnam_tz),
             TransactionType="Transfer Money",
             Amount=amount,
             Description=transfer_content,

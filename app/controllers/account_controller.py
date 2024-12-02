@@ -1,15 +1,7 @@
 from app.services.account_service import (
     handle_create_account,
-    locked_account,
-    edit_account,
-    unlocked_account,
-    search_account,
-    set_account_number,
-    generate_account_numbers,
     handle_forgot_password,
     handle_reset_password,
-    add_pin,
-    update_pin,
     handle_verify_pin,
     handle_send_change_email_pin,
     handle_change_email,
@@ -55,28 +47,6 @@ def create_account():
     return render_template("create_account.html", customer_id=customer_id)
 
 
-def edit_account(account_id):
-    return edit_account()
-
-
-def looked_account(account_id):
-    return locked_account(account_id)
-
-
-def unlooked_account(account_id):
-    return unlocked_account(account_id)
-
-
-def search_account():
-    return search_account()
-
-
-# Xử lý tạo danh sách số tài khoản cho trang lựa chọn
-def get_available_account_numbers():
-    phone_number = session["new_account"]["PhoneNumber"]
-    return generate_account_numbers(phone_number)
-
-
 def forgot_password():
     if request.method == "POST":
         email = request.form.get("email")
@@ -103,7 +73,6 @@ def verify_code():
     return render_template("verify_code.html")
 
 
-# Controller reset mật khẩu
 def reset_password():
     if request.method == "POST":
         new_password = request.form["new_password"]
@@ -132,7 +101,7 @@ def send_change_email_pin():
 
 
 def change_email():
-    
+
     if request.method == "POST":
         new_email = request.form["new_email"]
         pin_code = request.form["verification_code"]
@@ -146,7 +115,7 @@ def change_email():
 
 
 def send_change_password_pin():
-    
+
     if request.method == "POST":
         email = request.form["email"]
         message, category = handle_send_change_password_pin(email)
@@ -179,15 +148,6 @@ def convert_credit_score():
             return redirect(url_for("auth.login"))
         return redirect(url_for("home.credit_score"))
     return render_template("credit_score.html", account=account)
-
-
-def add_pin():
-    return add_pin()
-
-
-# Controller để xử lý form đổi mã PIN
-def update_pin():
-    return update_pin()
 
 
 def choose_account_number():

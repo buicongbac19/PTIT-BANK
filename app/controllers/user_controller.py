@@ -1,23 +1,10 @@
 from app.services.user_service import (
-    get_list_user,
     handle_create_user,
-    change_status_account,
-    update_user,
-    locked_user,
-    unlocked_user,
-    search_user,
     handle_login,
-    initiate_transfer,
-    confirm_transaction,
-    query_transaction,
 )
 
 from flask import request, flash, redirect, url_for, session, render_template
 import uuid
-
-
-def get_list_user():
-    return get_list_user()
 
 
 def create_user():
@@ -45,26 +32,6 @@ def create_user():
     return render_template("register.html")
 
 
-def change_status_account(customer_id):
-    return change_status_account(customer_id)
-
-
-def update_user(customer_id):
-    return update_user(customer_id)
-
-
-def locked_user(customer_id):
-    return locked_user(customer_id)
-
-
-def unlocked_user(customer_id):
-    return unlocked_user(customer_id)
-
-
-def search_user():
-    return search_user()
-
-
 def login():
     if request.method == "POST":
         username = request.form["username"]
@@ -83,20 +50,9 @@ def login():
     return render_template("login.html", is_open_popup=False)
 
 
-def start_transfer():
-    return initiate_transfer()
-
-
-def confirm_transaction():
-    return confirm_transaction()
-
-
-def get_transaction():
-    return query_transaction()
-
-
 def dashboard():
     from app.services.user_service import dashboard
+
     return dashboard()
 
 

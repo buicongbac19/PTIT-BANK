@@ -13,7 +13,7 @@ from flask import (
     session,
 )
 
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 
 from datetime import datetime
 
@@ -21,20 +21,19 @@ from app import db
 from app.models import Customer, Account, Transaction
 
 
-def generate_account_id(id_length=8):
-    return "".join(random.choices(string.digits, k=id_length))
-
-
-def get_list_user():
-    users = (
-        db.session.query(Customer, Account.Status)
-        .join(Account, Customer.Email == Account.Email)
-        .all()
-    )
-    return render_template("user_list.html", customers=users)
-
-
 def handle_create_user(data):
+    if not is_valid_email(data["email"]):
+        return "Email không hợp lệ, vui lòng thử lại", "danger", None
+    if not is_valid_phone_number(data["phone_number"]):
+        return "Số điện thoại không hợp lệ, vui lòng nhập lại!", "danger", None
+    exist_customer_email = Customer.query.filter_by(Email=data["email"]).first()
+    if exist_customer_email:
+        return "Email đã tồn tại, vui lòng thử lại!", "danger", None
+    exist_customer_phone = Customer.query.filter_by(
+        PhoneNumber=data["phone_number"]
+    ).first()
+    if exist_customer_phone:
+        return "Số điện thoại đã tồn tại, vui lòng thử lại!", "danger", None
     try:
         # Chuyển đổi ngày sinh từ chuỗi sang datetime.date
         if data["date_of_birth"]:  # Kiểm tra nếu ngày sinh được cung cấp
@@ -68,116 +67,6 @@ def handle_create_user(data):
     except Exception as e:
         db.session.rollback()
         return f"An error occurred: {str(e)}", "danger", None
-
-
-def change_status_account(customer_id):
-    # Lấy trạng thái mới từ form data
-    new_status = request.form.get("status")
-
-    # Tìm account bằng customer_id
-    account = Account.query.filter_by(CustomerID=customer_id).first()
-
-    if account:
-        account.Status = new_status
-        db.session.commit()
-        flash("Trạng thái tài khoản đã được cập nhật.")
-    else:
-        flash("Không tìm thấy tài khoản.")
-
-    # Quay lại trang quản lý khách hàng sau khi cập nhật
-    return redirect(url_for("user_list"))
-
-
-def search_user():
-    customer_id = request.args.get("customerID")
-    phone_number = request.args.get("phoneNumber")
-    customer = None
-    if customer_id:
-        customer = Customer.query.filter_by(CustomerID=customer_id).all()
-    elif phone_number:
-        customer = Customer.query.filter_by(PhoneNumber=phone_number).all()
-    # Trả về trang HTML với thông tin khách hàng nếu tìm thấy
-    if customer:
-        return render_template("user_list.html", customers=customer)
-    else:
-        return "<h3>Không tìm thấy khách hàng với thông tin đã nhập.</h3>", 404
-
-
-# Kiểm tra và khởi tạo chuyển khoản
-def initiate_transfer():
-    if request.method == "POST":
-        recipient_account = request.form["recipient_account"]
-        amount_str = request.form["amount"]
-        amount = Decimal(amount_str)
-        content = request.form["content"]
-        account_id = session.get("account_id")
-        # Kiểm tra thông tin chuyển khoản
-        if not recipient_account or not amount or not content:
-            flash("Vui lòng nhập đầy đủ thông tin ", "danger")
-
-        account_receipt = Account.query.get(recipient_account)
-        account_send = Account.query.get(account_id)
-        if not account_receipt:
-            flash("Tài khoản người nhận không tồn tại!")
-            return redirect(url_for("transfer"))
-        if account_send.balance < amount:
-            flash("Số dư tài khoản không đủ để thực hiện giao dịch")
-            return redirect(url_for("transfer"))
-        # Lưu thông tin vào session cho bước xác nhận
-        session["recipient_account"] = recipient_account
-        session["amount"] = amount
-        session["content"] = content
-
-    return render_template("transfer_form.html")
-
-
-def confirm_transaction():
-    if request.method == "POST":
-        return redirect(url_for("enter_pin"))
-
-    recipient_account = session.get("recipient_account")
-    amount = session.get("amount")
-    content = session.get("content")
-    return render_template(
-        "confirm_transfer.html",
-        recipient_account=recipient_account,
-        amount=amount,
-        content=content,
-    )
-
-
-def query_transaction():
-    customer_id = session.get("customer_id")
-    # Lấy ngày bắt đầu và ngày kết thúc
-    start_date_str = request.args.get("start_date")
-    end_date_str = request.args.get("end_date")
-
-    # Chuyển đổi chuỗi ngày tháng thành đối tượng datetime
-    start_date = (
-        datetime.strptime(start_date_str, "%Y-%m-%d") if start_date_str else None
-    )
-    end_date = datetime.strptime(end_date_str, "%Y-%m-%d") if end_date_str else None
-    # Tìm giao dịch theo customer_id và lọc theo ngày (nếu có)
-    query = Transaction.query.filter(
-        or_(
-            Transaction.senderAccountNumber == customer_id,
-            Transaction.recipientAccountNumber == customer_id,
-        )
-    )
-
-    if start_date and end_date:
-        query = query.filter(
-            Transaction.TransactionDate >= start_date,
-            Transaction.TransactionDate <= end_date,
-        )
-    elif start_date:
-        query = query.filter(Transaction.TransactionDate >= start_date)
-    elif end_date:
-        query = query.filter(Transaction.TransactionDate <= end_date)
-
-    transactions = query.all()
-
-    return render_template("transaction_history.html", transactions=transactions)
 
 
 def handle_login(username, password):
@@ -223,11 +112,6 @@ def is_valid_email(email):
     return re.match(email_regex, email) is not None
 
 
-# Hàm kiểm tra username không chứa khoảng trắng
-def is_valid_username(username):
-    return " " not in username
-
-
 # Hàm kiểm tra số điện thoại hợp lệ
 def is_valid_phone_number(phone_number):
     phone_regex = r"^0\d{9}$"  # Bắt đầu bằng số 0 và có tổng cộng 10 chữ số
@@ -238,18 +122,18 @@ def check_role():
     account_id = session.get("account_id")
     if not account_id:
         return "Bạn chưa đăng nhập", "danger"
-    
+
     account = Account.query.filter_by(AccountID=account_id).first()
     if not account:
         return "Tài khoản không tồn tại", "danger"
-    
+
     customer = Customer.query.filter_by(CustomerID=account.CustomerID).first()
     if not customer:
         return "Khách hàng không tồn tại", "danger"
-    
+
     if customer.Role != "Admin":
         return "Bạn không có quyền truy cập trang này", "danger"
-    
+
     return "Welcome Admin", "success"
 
 
@@ -266,7 +150,7 @@ def dashboard():
     latest_transactions = (
         db.session.query(Transaction, Account.Username)
         .join(Account, Transaction.senderAccountNumber == Account.accountNumber)
-        .order_by(Transaction.TransactionDate.desc())  
+        .order_by(Transaction.TransactionDate.desc())
         .limit(5)
         .all()
     )
