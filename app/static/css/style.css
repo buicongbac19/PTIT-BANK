@@ -692,20 +692,24 @@ button span {
 }
 
 button:hover {
-  background-color: #0071e2;
+  color: red;
+}
+
+.logout-text:hover {
+  color: red;
 }
 
 .logout {
   border: none;
   outline: none;
   background: transparent;
-  font-size: 16px;
-  margin-left: 6px;
-  cursor: pointer;
+  color: black;
+  display: flex;
+  column-gap: 10px;
 }
 
-.logout:hover {
-  color: red;
+.logout-text {
+  color: black;
 }
 
 /* BUTTON */
