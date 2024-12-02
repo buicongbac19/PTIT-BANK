@@ -47,7 +47,7 @@ class Transaction(db.Model):
     TransactionID = db.Column(db.String, primary_key=True)  # Khóa chính
     senderAccountNumber = db.Column(db.String, nullable=False)  # Khóa ngoại
     recipientAccountNumber = db.Column(db.String, nullable=False)  # Khóa ngoại
-    TransactionDate = db.Column(db.Date)
+    TransactionDate = db.Column(db.DateTime)
     TransactionType = db.Column(db.String)
     Amount = db.Column(db.Numeric(15, 2))  # Dữ liệu kiểu DECIMAL trong MySQL
     Description = db.Column(db.String)

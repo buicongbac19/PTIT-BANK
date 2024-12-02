@@ -132,7 +132,7 @@ def send_change_email_pin():
 
 
 def change_email():
-
+    
     if request.method == "POST":
         new_email = request.form["new_email"]
         pin_code = request.form["verification_code"]

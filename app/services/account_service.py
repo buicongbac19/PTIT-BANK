@@ -2,6 +2,7 @@ import random
 import string
 import re
 import unicodedata
+import pytz
 from decimal import Decimal
 import uuid
 from datetime import datetime, timezone
@@ -14,6 +15,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db
 from app.models import Account, Customer, Transaction
+
+vietnam_tz = pytz.timezone('Asia/Ho_Chi_Minh')
 
 from app.controllers.email_controller import (
     send_verification_email,
@@ -587,7 +590,7 @@ def handle_confirm_pin_code(
             TransactionID=str(uuid.uuid4()),  # Tạo ID giao dịch duy nhất
             senderAccountNumber=account.accountNumber,
             recipientAccountNumber=receiver_account.accountNumber,
-            TransactionDate=datetime.now(timezone.utc),  # Lấy thời gian hiện tại
+            TransactionDate = datetime.now(vietnam_tz),
             TransactionType="Transfer Money",
             Amount=amount,
             Description=transfer_content,

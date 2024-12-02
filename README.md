@@ -2,6 +2,7 @@
 
 Flask
 Flask-SQLAlchemy
+pytz
 
 # Run project
 
